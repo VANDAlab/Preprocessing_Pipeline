@@ -3,9 +3,7 @@
 # id,visit,t1,t2,pd,flr
 # Dependencies: minc-toolki, anaconda, and ANTs
 # for use at the CIC, you can load the following modules (or similar versions)
-# module load minc-toolkit-v2/1.9.18.2
-# module load ANTs/20220513
-# module load anaconda/2022.05
+# module load minc-toolkit-v2/1.9.18.2 ANTs/20220513 anaconda/2022.05
 
 if [ $# -eq 3 ];then
     input_list=$1
@@ -129,17 +127,16 @@ done
 tp=$(cat ${input_list}|wc -l)
 ### for just one timepoint; i.e. cross-sectional data ###
 if [ ${tp} = 1 ];then 
-    bestlinreg_g ${output_path}/${id}/${visit}/native/${id}_${visit}_t1_vp.mnc ${model_path}/Av_T1.mnc ${output_path}/${id}/template/${id}_${visit_tp}.xfm  \
-    ${output_path}/${id}/${visit}/stx_lin/${id}_${visit}_t1_to_icbm.xfm -clobber
-    if [ ! -z ${t2} ];then xfmconcat ${output_path}/${id}/${visit}/native/${id}_${visit}_t2_to_t1.xfm ${output_path}/${id}/template/${id}_${visit_tp}_to_icbm.xfm  \
-    ${output_path}/${id}/${visit}/stx_lin/${id}_${visit}_t2_to_icbm_stx.xfm; fi
-    if [ ! -z ${pd} ];then xfmconcat ${output_path}/${id}/${visit}/native/${id}_${visit}_pd_to_t1.xfm ${output_path}/${id}/template/${id}_${visit_tp}_to_icbm.xfm  \
-    ${output_path}/${id}/${visit}/stx_lin/${id}_${visit}_pd_to_icbm_stx.xfm; fi
-    if [ ! -z ${flr} ];then xfmconcat ${output_path}/${id}/${visit}/native/${id}_${visit}_flr_to_t1.xfm ${output_path}/${id}/template/${id}_${visit_tp}_to_icbm.xfm  \
-    ${output_path}/${id}/${visit}/stx_lin/${id}_${visit}_flr_to_icbm_stx.xfm; fi
+    bestlinreg_g ${output_path}/${id}/${visit}/native/${id}_${visit}_t1_vp.mnc ${model_path}/Av_T1.mnc ${output_path}/${id}/${visit}/stx_lin/${id}_${visit}_t1_to_icbm.xfm -clobber
+    if [ ! -z ${t2} ];then xfmconcat ${output_path}/${id}/${visit}/native/${id}_${visit}_t2_to_t1.xfm ${output_path}/${id}/${visit}/stx_lin/${id}_${visit}_t1_to_icbm.xfm  \
+    ${output_path}/${id}/${visit}/stx_lin/${id}_${visit}_t2_to_icbm_stx2.xfm; fi
+    if [ ! -z ${pd} ];then xfmconcat ${output_path}/${id}/${visit}/native/${id}_${visit}_pd_to_t1.xfm ${output_path}/${id}/${visit}/stx_lin/${id}_${visit}_t1_to_icbm.xfm  \
+    ${output_path}/${id}/${visit}/stx_lin/${id}_${visit}_pd_to_icbm_stx2.xfm; fi
+    if [ ! -z ${flr} ];then xfmconcat ${output_path}/${id}/${visit}/native/${id}_${visit}_flr_to_t1.xfm ${output_path}/${id}/${visit}/stx_lin/${id}_${visit}_t1_to_icbm.xfm  \
+    ${output_path}/${id}/${visit}/stx_lin/${id}_${visit}_flr_to_icbm_stx2.xfm; fi
 
     itk_resample ${output_path}/${id}/${visit}/native/${id}_${visit}_t1_vp.mnc ${output_path}/${id}/${visit}/stx_lin/${id}_${visit}_t1_stx2_lin.mnc \
-    --like ${model_path}/Av_T1.mnc --transform ${output_path}/${id}/template/${id}_${visit_tp}_to_icbm.xfm --order 4 --clobber
+    --like ${model_path}/Av_T1.mnc --transform ${output_path}/${id}/${visit}/stx_lin/${id}_${visit}_t1_to_icbm.xfm --order 4 --clobber
     if [ ! -z ${t2} ];then itk_resample ${output_path}/${id}/${visit}/native/${id}_${visit}_t2_vp.mnc ${output_path}/${id}/${visit}/stx_lin/${id}_${visit}_t2_stx2_lin.mnc \
     --like ${model_path}/Av_T2.mnc --transform ${output_path}/${id}/${visit}/stx_lin/${id}_${visit}_t2_to_icbm_stx2.xfm --order 4 --clobber; fi
     if [ ! -z ${pd} ];then itk_resample ${output_path}/${id}/${visit}/native/${id}_${visit}_pd_vp.mnc ${output_path}/${id}/${visit}/stx_lin/${id}_${visit}_pd_stx2_lin.mnc \
@@ -151,20 +148,37 @@ if [ ${tp} = 1 ];then
     ${output_path}/${id}/${visit}/stx_lin/${id}_${visit}_t1_stx2_beast_mask.mnc -fill -median -same_resolution \
     -configuration ${model_path}/ADNI_library/default.2mm.conf -clobber
 
-    src=${output_path}/${id}/${visit}/stx_lin/${id}_${visit}_t1_stx2_lin.mnc
+    volume_pol ${output_path}/${id}/${visit}/stx_lin/${id}_${visit}_t1_stx2_lin.mnc ${model_path}/Av_T1.mnc --order 1 --noclamp --expfile tmp \
+    ${output_path}/${id}/${visit}/stx_lin/${id}_${visit}_t1_stx2_lin_vp.mnc  --source_mask ${output_path}/${id}/${visit}/stx_lin/${id}_${visit}_t1_stx2_beast_mask.mnc \
+    --target_mask ${model_path}/Mask.mnc --clobber
+    if [ ! -z ${t2} ];then volume_pol ${output_path}/${id}/${visit}/stx_lin/${id}_${visit}_t2_stx2_lin.mnc ${model_path}/Av_T2.mnc --order 1 --noclamp \
+    --expfile tmp ${output_path}/${id}/${visit}/stx_lin/${id}_${visit}_t2_stx2_lin_vp.mnc  --source_mask ${output_path}/${id}/${visit}/stx_lin/${id}_${visit}_t1_stx2_beast_mask.mnc \
+    --target_mask ${model_path}/Mask.mnc --clobber; fi
+    if [ ! -z ${pd} ];then volume_pol ${output_path}/${id}/${visit}/stx_lin/${id}_${visit}_pd_stx2_lin.mnc ${model_path}/Av_PD.mnc --order 1 --noclamp \
+    --expfile tmp ${output_path}/${id}/${visit}/stx_lin/${id}_${visit}_pd_stx2_lin_vp.mnc  --source_mask ${output_path}/${id}/${visit}/stx_lin/${id}_${visit}_t1_stx2_beast_mask.mnc \
+    --target_mask ${model_path}/Mask.mnc --clobber; fi
+    if [ ! -z ${flr} ];then volume_pol ${output_path}/${id}/${visit}/stx_lin/${id}_${visit}_flr_stx2_lin.mnc ${model_path}/Av_FLAIR.mnc --order 1 --noclamp \
+    --expfile tmp ${output_path}/${id}/${visit}/stx_lin/${id}_${visit}_flr_stx2_lin_vp.mnc  --source_mask ${output_path}/${id}/${visit}/stx_lin/${id}_${visit}_t1_stx2_beast_mask.mnc \
+    --target_mask ${model_path}/Mask.mnc --clobber; fi
+
+    src=${output_path}/${id}/${visit}/stx_lin/${id}_${visit}_t1_stx2_lin_vp.mnc
     trg=${model_path}/Av_T1.mnc
     src_mask=${output_path}/${id}/${visit}/stx_lin/${id}_${visit}_t1_stx2_beast_mask.mnc
     trg_mask=${model_path}/Mask.mnc
     outp=${output_path}/${id}/${visit}/stx_nlin/${id}_${visit}_inv_nlin_
+    if [ ! -z $trg_mask ];then
+        mask="-x [${src_mask},${trg_mask}] "
+    fi
     antsRegistration -v -d 3 --float 1  --output "[${outp}]"  --use-histogram-matching 0 --winsorize-image-intensities "[0.005,0.995]" \
     --transform "SyN[0.7,3,0]" --metric "CC[${src},${trg},1,4]" --convergence "[50x50x30,1e-6,10]" --shrink-factors 4x2x1 --smoothing-sigmas 2x1x0vox ${mask} --minc
 
+    itk_resample ${output_path}/${id}/${visit}/stx_lin/${id}_${visit}_t1_stx2_lin_vp.mnc ${output_path}/${id}/${visit}/stx_nlin/${id}_${visit}_nlin.mnc \
+            --like ${model_path}/Av_T1.mnc --transform ${output_path}/${id}/${visit}/stx_nlin/${id}_${visit}_inv_nlin_0_NL.xfm --order 4 --clobber --invert_transform
     grid_proc --det ${output_path}/${id}/${visit}/stx_nlin/${id}_${visit}_inv_nlin_0_NL_grid_0.mnc ${output_path}/${id}/${visit}/vbm/${id}_${visit}_dbm.mnc
-
 fi
-
+tp=$(cat ${input_list}|wc -l)
 ### for longitudinal data: initial rigid registration of timepoints ###
-if [ ${tp} > 1 ];then
+if [ ${tp} -gt 1 ];then
     for timepoint in $(seq 1 ${tp});do
         tmp=$(cat ${input_list} | head -${timepoint} | tail -1)
         id=$(echo ${tmp}|cut -d , -f 1)
@@ -186,9 +200,9 @@ if [ ${tp} > 1 ];then
     done
     mincaverage ${output_path}/${id}/template/${id}_*_0.mnc ${output_path}/${id}/template/${id}_lin_av.mnc -clobber
 fi
-
+tp=$(cat ${input_list}|wc -l)
 ### for longitudinal data: linear average template ###
-if [ ${tp} > 1 ];then
+if [ ${tp} -gt 1 ];then
     for iteration in {1..5};do
         for timepoint in $(seq 1 ${tp});do
             tmp=$(cat ${input_list} | head -${timepoint} | tail -1)
@@ -242,11 +256,11 @@ if [ ${tp} > 1 ];then
 fi
 
 ### for longitudinal data: nonlinear average template ###
-cp ${output_path}/${id}/template/${id}_lin_av.mnc  ${output_path}/${id}/template/${id}_nlin_av.mnc 
-mincbeast ${model_path}/ADNI_library ${output_path}/${id}/template/${id}_nlin_av.mnc ${output_path}/${id}/template/${id}_mask.mnc \
--fill -median -same_resolution -configuration ${model_path}/ADNI_library/default.2mm.conf -clobber
-
-if [ ${tp} > 1 ];then 
+tp=$(cat ${input_list}|wc -l)
+if [ ${tp} -gt 1 ];then 
+    cp ${output_path}/${id}/template/${id}_lin_av.mnc  ${output_path}/${id}/template/${id}_nlin_av.mnc 
+    mincbeast ${model_path}/ADNI_library ${output_path}/${id}/template/${id}_nlin_av.mnc ${output_path}/${id}/template/${id}_mask.mnc \
+    -fill -median -same_resolution -configuration ${model_path}/ADNI_library/default.2mm.conf -clobber
     for iteration in {1..4};do
         for timepoint in $(seq 1 ${tp});do
             tmp=$(cat ${input_list} | head -${timepoint} | tail -1)
@@ -282,7 +296,7 @@ if [ ${tp} > 1 ];then
         done
         mincaverage ${output_path}/${id}/template/*_nlin.mnc ${output_path}/${id}/template/${id}_nlin_av.mnc -clobber
     done
-fi
+
 ### nonlinear registration of nonlinear subject specific template to reference template###
 src=${output_path}/${id}/template/${id}_nlin_av.mnc
 trg=${model_path}/Av_T1.mnc
@@ -296,7 +310,7 @@ antsRegistration -v -d 3 --float 1  --output "[${outp}]"  --use-histogram-matchi
 --transform "SyN[0.7,3,0]" --metric "CC[${src},${trg},1,4]" --convergence "[50x50x30,1e-6,10]" --shrink-factors 4x2x1 --smoothing-sigmas 2x1x0vox ${mask} --minc
 itk_resample ${output_path}/${id}/template/${id}_nlin_av.mnc ${output_path}/${id}/template/${id}_nlin_av_to_icbm.mnc \
 --like ${model_path}/Av_T1.mnc --transform ${output_path}/${id}/template/${id}_nlin_av_to_ref_nl_ants_0_inverse_NL.xfm --order 4 --clobber --invert_transform
-
+fi
 ### Deformation-Based Mprphometry (DBM) ###
 tp=$(cat ${input_list}|wc -l)
 if [ ${tp} -gt 1 ];then 
