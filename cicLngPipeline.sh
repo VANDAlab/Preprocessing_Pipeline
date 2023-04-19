@@ -177,8 +177,9 @@ if [ ${tp} = 1 ];then
     grid_proc --det ${output_path}/${id}/${visit}/stx_nlin/${id}_${visit}_inv_nlin_0_inverse_NL_grid_0.mnc ${output_path}/${id}/${visit}/vbm/${id}_${visit}_dbm.mnc
     
     echo Subjects,T1s,FLAIRs,Masks,XFMs >> ${output_path}/${id}/to_segment_t1_flair.csv
-	echo Subjects,T1s,T2s,Masks,XFMs >> ${output_path}/${id}/to_segment_t1_t2.csv
-	echo Subjects,T1s,Masks,XFMs >> ${output_path}/${id}/to_segment_t1.csv
+    echo Subjects,T1s,T2s,Masks,XFMs >> ${output_path}/${id}/to_segment_t1_t2.csv
+    echo Subjects,T1s,Masks,XFMs >> ${output_path}/${id}/to_segment_t1.csv
+
     echo ${id}_${visit}_t1,${output_path}/${id}/${visit}/stx_lin/${id}_${visit}_t1_stx2_lin.mnc,\
     ${output_path}/${id}/${visit}/stx_lin/${id}_${visit}_t1_stx2_beast_mask.mnc,\
     ${output_path}/${id}/${visit}/stx_nlin/${id}_${visit}_inv_nlin_0_inverse_NL.xfm >> ${output_path}/${id}/to_segment_t1.csv 
@@ -341,10 +342,11 @@ if [ ${tp} -gt 1 ];then
 fi
 
 ### Running BISON for tissue classification ###
+
+if [ ${tp} -gt 1 ];then 
 echo Subjects,T1s,FLAIRs,Masks,XFMs >> ${output_path}/${id}/to_segment_t1_flair.csv
 echo Subjects,T1s,T2s,Masks,XFMs >> ${output_path}/${id}/to_segment_t1_t2.csv
 echo Subjects,T1s,Masks,XFMs >> ${output_path}/${id}/to_segment_t1.csv
-if [ ${tp} -gt 1 ];then 
 for timepoint in $(seq 1 ${tp});do
     tmp=$(cat ${input_list} | head -${timepoint} | tail -1)
     id=$(echo ${tmp}|cut -d , -f 1)
