@@ -1,3 +1,5 @@
+#! /bin/bash
+
 ### Mahsa & Yashar - 2023-03-08  ###
 #Input file format:
 # id,visit,t1,t2,pd,flr
@@ -116,11 +118,11 @@ for i in $(cat ${input_list});do
      --source_mask ${output_path}/${id}/${visit}/native/${id}_${visit}_flr_mask_tmp.mnc --target_mask ${model_path}/Mask.mnc  --clobber; fi
 
     ### registering everything to stx space ###
-    if [ ! -z ${t2} ];then bestlinreg_g -lsq6 ${output_path}/${id}/${visit}/native/${id}_${visit}_t2_vp.mnc ${output_path}/${id}/${visit}/native/${id}_${visit}_t1_vp.mnc \
+    if [ ! -z ${t2} ];then bestlinreg_g -mi -lsq6 ${output_path}/${id}/${visit}/native/${id}_${visit}_t2_vp.mnc ${output_path}/${id}/${visit}/native/${id}_${visit}_t1_vp.mnc \
     ${output_path}/${id}/${visit}/native/${id}_${visit}_t2_to_t1.xfm -clobber; fi
-    if [ ! -z ${pd} ];then bestlinreg_g -lsq6 ${output_path}/${id}/${visit}/native/${id}_${visit}_pd_vp.mnc ${output_path}/${id}/${visit}/native/${id}_${visit}_t1_vp.mnc \
+    if [ ! -z ${pd} ];then bestlinreg_g -mi -lsq6 ${output_path}/${id}/${visit}/native/${id}_${visit}_pd_vp.mnc ${output_path}/${id}/${visit}/native/${id}_${visit}_t1_vp.mnc \
     ${output_path}/${id}/${visit}/native/${id}_${visit}_pd_to_t1.xfm -clobber; fi
-    if [ ! -z ${flr} ];then bestlinreg_g -lsq6 ${output_path}/${id}/${visit}/native/${id}_${visit}_flr_vp.mnc ${output_path}/${id}/${visit}/native/${id}_${visit}_t1_vp.mnc \
+    if [ ! -z ${flr} ];then bestlinreg_g -mi -lsq6 ${output_path}/${id}/${visit}/native/${id}_${visit}_flr_vp.mnc ${output_path}/${id}/${visit}/native/${id}_${visit}_t1_vp.mnc \
     ${output_path}/${id}/${visit}/native/${id}_${visit}_flr_to_t1.xfm -clobber; fi
 done
 
