@@ -84,13 +84,38 @@ for i in $(cat ${input_list});do
     ### co-registration of different modalities to t1 ###
     echo "Pre-processing co-registration"
 
-    if [ ! -z ${t2} ];then bestlinreg_s2 -lsq6 ${t2} ${t1} ${output_path}/${id}/${visit}/native/${id}_${visit}_t2_to_t1.xfm -clobber -mi; fi
-    if [ ! -z ${pd} ];then bestlinreg_s2 -lsq6 ${pd} ${t1} ${output_path}/${id}/${visit}/native/${id}_${visit}_pd_to_t1.xfm -clobber -mi; fi
-    if [ ! -z ${flr} ];then bestlinreg_s2 -lsq6 ${flr} ${t1} ${output_path}/${id}/${visit}/native/${id}_${visit}_flr_to_t1.xfm -clobber -mi; fi
+    if [ ! -z ${t2} ];then
+        antsRegistration_affine_SyN.sh --clobber --skip-nonlinear --linear-type lsq6 --close \
+            ${t2} \
+            ${t1} \
+            ${output_path}/${id}/tmp
+        xfminvert -clobber ${output_path}/${id}/tmp0_GenericAffine.xfm ${output_path}/${id}/${visit}/native/${id}_${visit}_t2_to_t1.xfm
+    fi
+
+    if [ ! -z ${pd} ];then
+        antsRegistration_affine_SyN.sh --clobber --skip-nonlinear --linear-type lsq6 --close \
+            ${pd} \
+            ${t1} \
+            ${output_path}/${id}/tmp
+        xfminvert -clobber ${output_path}/${id}/tmp0_GenericAffine.xfm ${output_path}/${id}/${visit}/native/${id}_${visit}_pd_to_t1.xfm
+    fi
+
+    if [ ! -z ${flr} ];then
+        antsRegistration_affine_SyN.sh --clobber --skip-nonlinear --linear-type lsq6 --close \
+            ${flr} \
+            ${t1} \
+            ${output_path}/${id}/tmp
+        xfminvert -clobber ${output_path}/${id}/tmp0_GenericAffine.xfm ${output_path}/${id}/${visit}/native/${id}_${visit}_flr_to_t1.xfm
+    fi
 
     ### generating temporary masks for non-uniformity correction ###
-    ${model_path}/antsRegistration_affine_SyN.sh --clobber --linear-type affine --skip-nonlinear ${t1} ${model_path}/Av_T1.mnc ${output_path}/${id}/tmp
-    xfminvert ${output_path}/${id}/tmp0_GenericAffine.xfm ${output_path}/${id}/${visit}/stx_lin/${id}_${visit}_t1_to_icbm_stx_tmp.xfm
+    antsRegistration_affine_SyN.sh --clobber --skip-nonlinear \
+        --fixed-mask ${model_path}/Mask.mnc \
+        ${t1} \
+        ${model_path}/Av_T1.mnc \
+        ${output_path}/${id}/tmp
+    xfminvert -clobber ${output_path}/${id}/tmp0_GenericAffine.xfm ${output_path}/${id}/${visit}/stx_lin/${id}_${visit}_t1_to_icbm_stx_tmp.xfm
+
     if [ ! -z ${t2} ];then xfmconcat ${output_path}/${id}/${visit}/native/${id}_${visit}_t2_to_t1.xfm ${output_path}/${id}/${visit}/stx_lin/${id}_${visit}_t1_to_icbm_stx_tmp.xfm \
     ${output_path}/${id}/${visit}/stx_lin/${id}_${visit}_t2_to_icbm_stx_tmp.xfm; fi
     if [ ! -z ${pd} ];then xfmconcat ${output_path}/${id}/${visit}/native/${id}_${visit}_pd_to_t1.xfm ${output_path}/${id}/${visit}/stx_lin/${id}_${visit}_t1_to_icbm_stx_tmp.xfm \
@@ -133,13 +158,31 @@ for i in $(cat ${input_list});do
 
     ### registering everything to stx space ###
     echo "Pre-processing registering to stx"
-    
-    if [ ! -z ${t2} ];then bestlinreg_g -mi -lsq6 ${output_path}/${id}/${visit}/native/${id}_${visit}_t2_vp.mnc ${output_path}/${id}/${visit}/native/${id}_${visit}_t1_vp.mnc \
-    ${output_path}/${id}/${visit}/native/${id}_${visit}_t2_to_t1.xfm -clobber;fi
-    if [ ! -z ${pd} ];then bestlinreg_g -mi -lsq6 ${output_path}/${id}/${visit}/native/${id}_${visit}_pd_vp.mnc ${output_path}/${id}/${visit}/native/${id}_${visit}_t1_vp.mnc \
-    ${output_path}/${id}/${visit}/native/${id}_${visit}_pd_to_t1.xfm -clobber;fi
-    if [ ! -z ${flr} ];then bestlinreg_g -mi -lsq6 ${output_path}/${id}/${visit}/native/${id}_${visit}_flr_vp.mnc ${output_path}/${id}/${visit}/native/${id}_${visit}_t1_vp.mnc \
-    ${output_path}/${id}/${visit}/native/${id}_${visit}_flr_to_t1.xfm -clobber;fi
+
+    if [ ! -z ${t2} ];then
+        antsRegistration_affine_SyN.sh --clobber --skip-nonlinear --linear-type lsq6 --close \
+            ${output_path}/${id}/${visit}/native/${id}_${visit}_t2_vp.mnc \
+            ${output_path}/${id}/${visit}/native/${id}_${visit}_t1_vp.mnc \
+            ${output_path}/${id}/tmp
+        xfminvert -clobber ${output_path}/${id}/tmp0_GenericAffine.xfm ${output_path}/${id}/${visit}/native/${id}_${visit}_t2_to_t1.xfm
+    fi
+
+    if [ ! -z ${pd} ];then
+        antsRegistration_affine_SyN.sh --clobber --skip-nonlinear --linear-type lsq6 --close \
+            ${output_path}/${id}/${visit}/native/${id}_${visit}_pd_vp.mnc \
+            ${output_path}/${id}/${visit}/native/${id}_${visit}_t1_vp.mnc \
+            ${output_path}/${id}/tmp
+        xfminvert -clobber ${output_path}/${id}/tmp0_GenericAffine.xfm ${output_path}/${id}/${visit}/native/${id}_${visit}_pd_to_t1.xfm
+    fi
+
+    if [ ! -z ${flr} ];then
+        antsRegistration_affine_SyN.sh --clobber --skip-nonlinear --linear-type lsq6 --close \
+            ${output_path}/${id}/${visit}/native/${id}_${visit}_flr_vp.mnc \
+            ${output_path}/${id}/${visit}/native/${id}_${visit}_t1_vp.mnc \
+            ${output_path}/${id}/tmp
+        xfminvert -clobber ${output_path}/${id}/tmp0_GenericAffine.xfm ${output_path}/${id}/${visit}/native/${id}_${visit}_flr_to_t1.xfm
+    fi
+
 done
 
 echo "Pre-processing the native data Done!"
@@ -148,10 +191,14 @@ tp=$(cat ${input_list}|wc -l)
 ### for just one timepoint; i.e. cross-sectional data ###
 if [ ${tp} = 1 ];then 
     echo "cross-sectional data"
-    
-    ${model_path}/antsRegistration_affine_SyN.sh --clobber --linear-type affine --skip-nonlinear  ${output_path}/${id}/${visit}/native/${id}_${visit}_t1_vp.mnc ${model_path}/Av_T1.mnc ${output_path}/${id}/tmp
-    xfminvert ${output_path}/${id}/tmp0_GenericAffine.xfm ${output_path}/${id}/${visit}/stx_lin/${id}_${visit}_t1_to_icbm_ants.xfm
-    
+
+    antsRegistration_affine_SyN.sh --clobber --skip-nonlinear \
+        --fixed-mask ${model_path}/Mask.mnc \
+        ${output_path}/${id}/${visit}/native/${id}_${visit}_t1_vp.mnc \
+        ${model_path}/Av_T1.mnc \
+        ${output_path}/${id}/tmp
+    xfminvert -clobber ${output_path}/${id}/tmp0_GenericAffine.xfm ${output_path}/${id}/${visit}/stx_lin/${id}_${visit}_t1_to_icbm_ants.xfm
+
     itk_resample ${output_path}/${id}/${visit}/native/${id}_${visit}_t1_vp.mnc ${output_path}/${id}/${visit}/stx_lin/${id}_${visit}_t1_stx2_lin.mnc \
     --like ${model_path}/Av_T1.mnc --transform ${output_path}/${id}/${visit}/stx_lin/${id}_${visit}_t1_to_icbm_ants.xfm --order 4 --clobber
 
@@ -162,8 +209,13 @@ if [ ${tp} = 1 ];then
     itk_resample ${output_path}/${id}/${visit}/stx_lin/${id}_${visit}_t1_stx2_beast_mask.mnc ${output_path}/${id}/${visit}/native/${id}_${visit}_t1_native_beast_mask.mnc \
     --like ${output_path}/${id}/${visit}/native/${id}_${visit}_t1_vp.mnc --transform ${output_path}/${id}/${visit}/stx_lin/${id}_${visit}_t1_to_icbm_ants.xfm --order  --clobber --invert_transform --label
 
-    bestlinreg_s2 ${output_path}/${id}/${visit}/native/${id}_${visit}_t1_vp.mnc ${model_path}/Av_T1.mnc -source_mask ${output_path}/${id}/${visit}/native/${id}_${visit}_t1_native_beast_mask.mnc \
-    -target_mask ${model_path}/Mask.mnc ${output_path}/${id}/${visit}/stx_lin/${id}_${visit}_t1_to_icbm.xfm
+    antsRegistration_affine_SyN.sh --clobber --skip-nonlinear \
+        --moving-mask ${output_path}/${id}/${visit}/native/${id}_${visit}_t1_native_beast_mask.mnc \
+        --fixed-mask ${model_path}/Mask.mnc \
+        ${output_path}/${id}/${visit}/native/${id}_${visit}_t1_vp.mnc \
+        ${model_path}/Av_T1.mnc \
+        ${output_path}/${id}/tmp
+    xfminvert ${output_path}/${id}/tmp0_GenericAffine.xfm ${output_path}/${id}/${visit}/stx_lin/${id}_${visit}_t1_to_icbm.xfm
 
     itk_resample ${output_path}/${id}/${visit}/native/${id}_${visit}_t1_vp.mnc ${output_path}/${id}/${visit}/stx_lin/${id}_${visit}_t1_stx2_lin.mnc \
     --like ${model_path}/Av_T1.mnc --transform ${output_path}/${id}/${visit}/stx_lin/${id}_${visit}_t1_to_icbm.xfm --order 4 --clobber
@@ -233,9 +285,14 @@ if [ ${tp} -gt 1 ];then
         tmp=$(cat ${input_list} | head -${timepoint} | tail -1)
         id=$(echo ${tmp}|cut -d , -f 1)
         visit_tp=$(echo ${tmp}|cut -d , -f 2)
-        if [ ${timepoint} = 1 ];then 
-            ${model_path}/antsRegistration_affine_SyN.sh --clobber --linear-type affine --skip-nonlinear ${output_path}/${id}/${visit_tp}/native/${id}_${visit_tp}_t1_vp.mnc ${model_path}/Av_T1.mnc ${output_path}/${id}/tmp
+        if [ ${timepoint} = 1 ];then
+            antsRegistration_affine_SyN.sh --clobber --skip-nonlinear \
+                --fixed-mask ${model_path}/Mask.mnc \
+                ${output_path}/${id}/${visit_tp}/native/${id}_${visit_tp}_t1_vp.mnc \
+                ${model_path}/Av_T1.mnc \
+                ${output_path}/${id}/tmp
             xfminvert ${output_path}/${id}/tmp0_GenericAffine.xfm ${output_path}/${id}/template/${id}_baseline_to_icbm_stx_ants.xfm
+
             cp ${output_path}/${id}/${visit_tp}/native/${id}_${visit_tp}_t1_vp.mnc ${output_path}/${id}/template/${id}_baseline.mnc
             cp ${model_path}/i.xfm  ${output_path}/${id}/template/${id}_${visit_tp}_to_baseline.xfm
             itk_resample ${output_path}/${id}/${visit_tp}/native/${id}_${visit_tp}_t1_vp.mnc ${output_path}/${id}/template/${id}_${visit_tp}_0.mnc \
@@ -248,15 +305,24 @@ if [ ${tp} -gt 1 ];then
             itk_resample ${output_path}/${id}/template/${id}_${visit_tp}_0_beast_mask.mnc ${output_path}/${id}/template/${id}_${visit_tp}_0_beast_mask_native.mnc \
             --like ${output_path}/${id}/${visit_tp}/native/${id}_${visit_tp}_t1_vp.mnc--transform ${output_path}/${id}/template/${id}_baseline_to_icbm_stx_ants.xfm --order  --clobber --invert_transform --label
 
-            bestlinreg_s2 ${output_path}/${id}/${visit_tp}/native/${id}_${visit_tp}_t1_vp.mnc ${model_path}/Av_T1.mnc -source_mask ${output_path}/${id}/template/${id}_${visit_tp}_0_beast_mask_native.mnc \
-            -target_mask ${model_path}/Mask.mnc ${output_path}/${id}/template/${id}_baseline_to_icbm_stx.xfm
+            antsRegistration_affine_SyN.sh --clobber --skip-nonlinear \
+                --fxied-mask ${model_path}/Mask.mnc \
+                --moving-mask ${output_path}/${id}/template/${id}_${visit_tp}_0_beast_mask_native.mnc \
+                ${output_path}/${id}/${visit_tp}/native/${id}_${visit_tp}_t1_vp.mnc \
+                ${model_path}/Av_T1.mnc \
+                ${output_path}/${id}/tmp
+            xfminvert -clobber ${output_path}/${id}/tmp0_GenericAffine.xfm ${output_path}/${id}/template/${id}_baseline_to_icbm_stx.xfm
 
             itk_resample ${output_path}/${id}/${visit_tp}/native/${id}_${visit_tp}_t1_vp.mnc ${output_path}/${id}/template/${id}_${visit_tp}_0.mnc \
             --like ${model_path}/Av_T1.mnc --transform ${output_path}/${id}/template/${id}_baseline_to_icbm_stx.xfm --order 4 --clobber
         fi
-        if [ ${timepoint} -gt 1 ];then 
-            bestlinreg_g -lsq6 ${output_path}/${id}/${visit_tp}/native/${id}_${visit_tp}_t1_vp.mnc ${output_path}/${id}/template/${id}_baseline.mnc \
-            ${output_path}/${id}/template/${id}_${visit_tp}_to_baseline.xfm -clobber
+        if [ ${timepoint} -gt 1 ];then
+            antsRegistration_affine_SyN.sh --clobber --skip-nonlinear  --linear-type lsq6 \
+                ${output_path}/${id}/${visit_tp}/native/${id}_${visit_tp}_t1_vp.mnc \
+                ${output_path}/${id}/template/${id}_baseline.mnc
+                ${output_path}/${id}/tmp
+            xfminvert -clobber ${output_path}/${id}/tmp0_GenericAffine.xfm ${output_path}/${id}/template/${id}_${visit_tp}_to_baseline.xfm
+
             xfmconcat ${output_path}/${id}/template/${id}_${visit_tp}_to_baseline.xfm  ${output_path}/${id}/template/${id}_baseline_to_icbm_stx.xfm \
             ${output_path}/${id}/template/${id}_${visit_tp}_to_icbm.xfm
             itk_resample ${output_path}/${id}/${visit_tp}/native/${id}_${visit_tp}_t1_vp.mnc ${output_path}/${id}/template/${id}_${visit_tp}_0.mnc \
@@ -275,7 +341,12 @@ if [ ${tp} -gt 1 ];then
             tmp=$(cat ${input_list} | head -${timepoint} | tail -1)
             id=$(echo ${tmp}|cut -d , -f 1)
             visit_tp=$(echo ${tmp}|cut -d , -f 2)
-            bestlinreg_g ${output_path}/${id}/template/${id}_${visit_tp}_0.mnc ${output_path}/${id}/template/${id}_lin_av.mnc ${output_path}/${id}/template/${id}_${visit_tp}.xfm -lsq6 -clobber
+            antsRegistration_affine_SyN.sh --clobber --skip-nonlinear  --linear-type lsq6 \
+                ${output_path}/${id}/template/${id}_${visit_tp}_0.mnc \
+                ${output_path}/${id}/template/${id}_lin_av.mnc \
+                ${output_path}/${id}/tmp
+            xfminvert -clobber ${output_path}/${id}/tmp0_GenericAffine.xfm ${output_path}/${id}/template/${id}_${visit_tp}.xfm
+
             xfmconcat ${output_path}/${id}/template/${id}_${visit_tp}_to_baseline.xfm  ${output_path}/${id}/template/${id}_baseline_to_icbm_stx.xfm \
             ${output_path}/${id}/template/${id}_${visit_tp}.xfm ${output_path}/${id}/template/${id}_${visit_tp}_to_icbm.xfm -clobber
             itk_resample ${output_path}/${id}/${visit_tp}/native/${id}_${visit_tp}_t1_vp.mnc ${output_path}/${id}/template/${id}_${visit_tp}_0.mnc \
@@ -283,8 +354,13 @@ if [ ${tp} -gt 1 ];then
         done
         mincaverage ${output_path}/${id}/template/${id}_*_0.mnc ${output_path}/${id}/template/${id}_lin_av.mnc -clobber
     done
-    ${model_path}/antsRegistration_affine_SyN.sh --clobber --linear-type affine --skip-nonlinear ${output_path}/${id}/template/${id}_lin_av.mnc ${model_path}/Av_T1.mnc ${output_path}/${id}/tmp
+    antsRegistration_affine_SyN.sh --clobber --skip-nonlinear \
+        --fixed-mask ${model_path}/Mask.mnc \
+        ${output_path}/${id}/template/${id}_lin_av.mnc \
+        ${model_path}/Av_T1.mnc \
+        ${output_path}/${id}/tmp
     xfminvert ${output_path}/${id}/tmp0_GenericAffine.xfm ${output_path}/${id}/template/${id}_lin_av_to_template.xfm
+
     for timepoint in $(seq 1 ${tp});do
         tmp=$(cat ${input_list} | head -${timepoint} | tail -1)
         id=$(echo ${tmp}|cut -d , -f 1)
