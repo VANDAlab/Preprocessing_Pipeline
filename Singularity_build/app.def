@@ -2,27 +2,31 @@ Bootstrap: docker
 From: continuumio/anaconda3:2023.07-1
 
 %setup
-    mkdir -p deb
-
-    curl http://packages.bic.mni.mcgill.ca/minc-toolkit/Debian/minc-toolkit-1.9.18-20200813-Ubuntu_20.04-x86_64.deb -Lo ./deb/minc-toolkit.deb -C -
-    curl http://packages.bic.mni.mcgill.ca/minc-toolkit/Debian/minc-toolkit-testsuite-0.1.3-20131212.deb -Lo ./deb/minc-toolkit-testsuite.deb -C -
-    curl http://packages.bic.mni.mcgill.ca/minc-toolkit/Debian/bic-mni-models-0.1.1-20120421.deb -Lo ./deb/bic-mni-models.deb -C -
-    curl http://packages.bic.mni.mcgill.ca/minc-toolkit/Debian/beast-library-1.1.0-20121212.deb -Lo ./deb/beast-library.deb -C -
-
-    test -d minc-toolkit-extras || git clone https://github.com/CoBrALab/minc-toolkit-extras.git
+    mkdir -p packages
+    ( cd packages
+    wget -c https://packages.bic.mni.mcgill.ca/minc-toolkit/min/minc-toolkit-1.9.18-20200813-Ubuntu_20.04-x86_64.deb
+    wget -c http://packages.bic.mni.mcgill.ca/minc-toolkit/Debian/bic-mni-models-0.1.1-20120421.deb
+    wget -c http://packages.bic.mni.mcgill.ca/minc-toolkit/Debian/beast-library-1.1.0-20121212.deb
+    wget -c https://github.com/ANTsX/ANTs/releases/download/v2.5.0/ants-2.5.0-ubuntu-20.04-X64-gcc.zip
+    )
+    test -d minc-toolkit-extras || git clone https://github.com/CoBrALab/minc-toolkit-extras.git minc-toolkit-extras
+    (cd minc-toolkit-extras && git pull && git checkout 544485d20726cb754c55d8ad9120fec0ce800e94)
 
 %files
-    deb
-    minc-toolkit-extras
+    packages
+    minc-toolkit-extras /opt
 
 %post
     pip install SimpleITK
 
     apt-get update
-    DEBIAN_FRONTEND="noninteractive" apt-get -y install libc6 libstdc++6 imagemagick perl
+    DEBIAN_FRONTEND="noninteractive" apt-get -y install unzip libc6 libstdc++6 imagemagick perl
 
-    for fn in ./deb/*.deb; do dpkg -i $fn; done;
+    for fn in packages/*.deb; do dpkg -i $fn; done;
+    unzip -d /opt packages/ants-2.5.0-ubuntu-20.04-X64-gcc.zip
+    rm -rf /packages
     apt-get install -yf
+    apt-get --purge autoremove -y
 
 %environment
     export MINC_TOOLKIT=/opt/minc/1.9.18
@@ -36,6 +40,4 @@ From: continuumio/anaconda3:2023.07-1
     export VOLUME_CACHE_THRESHOLD=-1
     export MANPATH=${MINC_TOOLKIT}/man${MANPATH:+:$MANPATH}
 
-    export ANTSPATH=${MINC_TOOLKIT}/bin
-
-    export PATH=$(realpath minc-toolkit-extras):${PATH}
+    export PATH=/opt/ants-2.5.0/bin:/opt/minc-toolkit-extras/:${PATH}
