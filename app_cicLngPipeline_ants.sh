@@ -1,4 +1,6 @@
-#! /bin/bash
+#!/bin/bash
+
+set -euo pipefail
 
 export ITK_GLOBAL_DEFAULT_NUMBER_OF_THREADS=10
 
