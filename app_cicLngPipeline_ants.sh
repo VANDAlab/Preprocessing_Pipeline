@@ -1,6 +1,5 @@
 #! /bin/bash
 
-export PATH=/scratch_models/minc-toolkit-extras/:${PATH}
 export ITK_GLOBAL_DEFAULT_NUMBER_OF_THREADS=10
 
 ### Mahsa & Yashar - 2023-03-08  ###
