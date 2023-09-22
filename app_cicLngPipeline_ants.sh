@@ -76,10 +76,10 @@ for i in $(cat ${input_list});do
     ### denoising ###
     echo "Pre-processing denoising"
 
-    mincnlm ${t1} ${output_path}/${id}/${visit}/native/${id}_${visit}_t1_nlm.mnc -mt 1 -beta 0.7 -clobber
-    if [ ! -z ${t2} ];then mincnlm ${t2} ${output_path}/${id}/${visit}/native/${id}_${visit}_t2_nlm.mnc -mt 1 -beta 0.7 -clobber; fi
-    if [ ! -z ${pd} ];then mincnlm ${pd} ${output_path}/${id}/${visit}/native/${id}_${visit}_pd_nlm.mnc -mt 1 -beta 0.7 -clobber; fi
-    if [ ! -z ${flr} ];then mincnlm ${flr} ${output_path}/${id}/${visit}/native/${id}_${visit}_flr_nlm.mnc -mt 1 -beta 0.7 -clobber; fi
+    minc_anlm --mt ${ITK_GLOBAL_DEFAULT_NUMBER_OF_THREADS} --beta 0.7 --clobber ${t1} ${output_path}/${id}/${visit}/native/${id}_${visit}_t1_anlm.mnc
+    if [ ! -z ${t2} ];then minc_anlm --mt ${ITK_GLOBAL_DEFAULT_NUMBER_OF_THREADS} --beta 0.7 --clobber ${t2} ${output_path}/${id}/${visit}/native/${id}_${visit}_t2_anlm.mnc; fi
+    if [ ! -z ${pd} ];then minc_anlm --mt ${ITK_GLOBAL_DEFAULT_NUMBER_OF_THREADS} --beta 0.7 --clobber ${pd} ${output_path}/${id}/${visit}/native/${id}_${visit}_pd_anlm.mnc; fi
+    if [ ! -z ${flr} ];then minc_anlm --mt ${ITK_GLOBAL_DEFAULT_NUMBER_OF_THREADS} --beta 0.7 --clobber ${flr} ${output_path}/${id}/${visit}/native/${id}_${visit}_flr_anlm.mnc; fi
 
     ### co-registration of different modalities to t1 ###
     echo "Pre-processing co-registration"
@@ -135,13 +135,13 @@ for i in $(cat ${input_list});do
     ### non-uniformity correction ###
     echo "Pre-processing non-uniformity correction"
 
-    nu_correct ${output_path}/${id}/${visit}/native/${id}_${visit}_t1_nlm.mnc ${output_path}/${id}/${visit}/native/${id}_${visit}_t1_n3.mnc \
+    nu_correct ${output_path}/${id}/${visit}/native/${id}_${visit}_t1_anlm.mnc ${output_path}/${id}/${visit}/native/${id}_${visit}_t1_n3.mnc \
      -mask ${output_path}/${id}/${visit}/native/${id}_${visit}_t1_mask_tmp.mnc -iter 200 -distance 200 -stop 0.000001 -normalize_field  -clobber
-    if [ ! -z ${t2} ];then nu_correct ${output_path}/${id}/${visit}/native/${id}_${visit}_t2_nlm.mnc ${output_path}/${id}/${visit}/native/${id}_${visit}_t2_n3.mnc \
+    if [ ! -z ${t2} ];then nu_correct ${output_path}/${id}/${visit}/native/${id}_${visit}_t2_anlm.mnc ${output_path}/${id}/${visit}/native/${id}_${visit}_t2_n3.mnc \
     -mask ${output_path}/${id}/${visit}/native/${id}_${visit}_t2_mask_tmp.mnc -iter 200 -distance 200 -stop 0.000001 -normalize_field  -clobber; fi
-    if [ ! -z ${pd} ];then nu_correct ${output_path}/${id}/${visit}/native/${id}_${visit}_pd_nlm.mnc ${output_path}/${id}/${visit}/native/${id}_${visit}_pd_n3.mnc \
+    if [ ! -z ${pd} ];then nu_correct ${output_path}/${id}/${visit}/native/${id}_${visit}_pd_anlm.mnc ${output_path}/${id}/${visit}/native/${id}_${visit}_pd_n3.mnc \
     -mask ${output_path}/${id}/${visit}/native/${id}_${visit}_pd_mask_tmp.mnc -iter 200 -distance 200 -stop 0.000001 -normalize_field  -clobber; fi
-    if [ ! -z ${flr} ];then  nu_correct ${output_path}/${id}/${visit}/native/${id}_${visit}_flr_nlm.mnc ${output_path}/${id}/${visit}/native/${id}_${visit}_flr_n3.mnc \
+    if [ ! -z ${flr} ];then  nu_correct ${output_path}/${id}/${visit}/native/${id}_${visit}_flr_anlm.mnc ${output_path}/${id}/${visit}/native/${id}_${visit}_flr_n3.mnc \
     -mask ${output_path}/${id}/${visit}/native/${id}_${visit}_flr_mask_tmp.mnc -iter 200 -distance 200 -stop 0.000001 -normalize_field  -clobber; fi
 
     ### intensity normalization ###
@@ -557,7 +557,7 @@ rm -rf ${output_path}/${id}/tmp/
 rm ${output_path}/${id}/*/*/*tmp.xfm
 rm ${output_path}/${id}/*/*/*tmp.mnc
 rm ${output_path}/${id}/*/*/*tmp
-rm ${output_path}/${id}/*/native/*nlm*
+rm ${output_path}/${id}/*/native/*anlm*
 rm ${output_path}/${id}/*/native/*n3*
 rm ${output_path}/${id}/*/cls/*Prob_Label*
 rm ${output_path}/${id}/*.csv
