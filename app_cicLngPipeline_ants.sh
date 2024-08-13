@@ -188,6 +188,9 @@ done
 echo "Pre-processing the native data Done!"
 
 tp=$(cat ${input_list}|wc -l)
+t2=$(echo ${output_path}/${id}/${visit}/native/${id}_${visit}_t2_vp.mnc)
+pd=$(echo ${output_path}/${id}/${visit}/native/${id}_${visit}_pd_vp.mnc)
+flr=$(echo ${output_path}/${id}/${visit}/native/${id}_${visit}_flr_vp.mnc)
 ### for just one timepoint; i.e. cross-sectional data ###
 if [ ${tp} = 1 ];then 
     echo "cross-sectional data"
@@ -215,35 +218,35 @@ if [ ${tp} = 1 ];then
         ${output_path}/${id}/${visit}/native/${id}_${visit}_t1_vp.mnc \
         ${model_path}/Av_T1.mnc \
         ${output_path}/${id}/tmp
-    xfminvert ${output_path}/${id}/tmp0_GenericAffine.xfm ${output_path}/${id}/${visit}/stx_lin/${id}_${visit}_t1_to_icbm.xfm
+    xfminvert -clobber ${output_path}/${id}/tmp0_GenericAffine.xfm ${output_path}/${id}/${visit}/stx_lin/${id}_${visit}_t1_to_icbm.xfm
 
     itk_resample ${output_path}/${id}/${visit}/native/${id}_${visit}_t1_vp.mnc ${output_path}/${id}/${visit}/stx_lin/${id}_${visit}_t1_stx2_lin.mnc \
     --like ${model_path}/Av_T1.mnc --transform ${output_path}/${id}/${visit}/stx_lin/${id}_${visit}_t1_to_icbm.xfm --order 4 --clobber
 
-    if [ ! -z ${t2} ];then xfmconcat ${output_path}/${id}/${visit}/native/${id}_${visit}_t2_to_t1.xfm ${output_path}/${id}/${visit}/stx_lin/${id}_${visit}_t1_to_icbm.xfm  \
+    if [ -f ${t2} ];then xfmconcat ${output_path}/${id}/${visit}/native/${id}_${visit}_t2_to_t1.xfm ${output_path}/${id}/${visit}/stx_lin/${id}_${visit}_t1_to_icbm.xfm  \
     ${output_path}/${id}/${visit}/stx_lin/${id}_${visit}_t2_to_icbm_stx2.xfm -clobber; fi
-    if [ ! -z ${pd} ];then xfmconcat ${output_path}/${id}/${visit}/native/${id}_${visit}_pd_to_t1.xfm ${output_path}/${id}/${visit}/stx_lin/${id}_${visit}_t1_to_icbm.xfm  \
+    if [ -f ${pd} ];then xfmconcat ${output_path}/${id}/${visit}/native/${id}_${visit}_pd_to_t1.xfm ${output_path}/${id}/${visit}/stx_lin/${id}_${visit}_t1_to_icbm.xfm  \
     ${output_path}/${id}/${visit}/stx_lin/${id}_${visit}_pd_to_icbm_stx2.xfm -clobber; fi
-    if [ ! -z ${flr} ];then xfmconcat ${output_path}/${id}/${visit}/native/${id}_${visit}_flr_to_t1.xfm ${output_path}/${id}/${visit}/stx_lin/${id}_${visit}_t1_to_icbm.xfm  \
+    if [ -f ${flr} ];then xfmconcat ${output_path}/${id}/${visit}/native/${id}_${visit}_flr_to_t1.xfm ${output_path}/${id}/${visit}/stx_lin/${id}_${visit}_t1_to_icbm.xfm  \
     ${output_path}/${id}/${visit}/stx_lin/${id}_${visit}_flr_to_icbm_stx2.xfm -clobber; fi
 
-    if [ ! -z ${t2} ];then itk_resample ${output_path}/${id}/${visit}/native/${id}_${visit}_t2_vp.mnc ${output_path}/${id}/${visit}/stx_lin/${id}_${visit}_t2_stx2_lin.mnc \
+    if [ -f ${t2} ];then itk_resample ${output_path}/${id}/${visit}/native/${id}_${visit}_t2_vp.mnc ${output_path}/${id}/${visit}/stx_lin/${id}_${visit}_t2_stx2_lin.mnc \
     --like ${model_path}/Av_T2.mnc --transform ${output_path}/${id}/${visit}/stx_lin/${id}_${visit}_t2_to_icbm_stx2.xfm --order 4 --clobber; fi
-    if [ ! -z ${pd} ];then itk_resample ${output_path}/${id}/${visit}/native/${id}_${visit}_pd_vp.mnc ${output_path}/${id}/${visit}/stx_lin/${id}_${visit}_pd_stx2_lin.mnc \
+    if [ -f ${pd} ];then itk_resample ${output_path}/${id}/${visit}/native/${id}_${visit}_pd_vp.mnc ${output_path}/${id}/${visit}/stx_lin/${id}_${visit}_pd_stx2_lin.mnc \
     --like ${model_path}/Av_PD.mnc --transform ${output_path}/${id}/${visit}/stx_lin/${id}_${visit}_pd_to_icbm_stx2.xfm --order 4 --clobber; fi
-    if [ ! -z ${flr} ];then itk_resample ${output_path}/${id}/${visit}/native/${id}_${visit}_flr_vp.mnc ${output_path}/${id}/${visit}/stx_lin/${id}_${visit}_flr_stx2_lin.mnc \
+    if [ -f ${flr} ];then itk_resample ${output_path}/${id}/${visit}/native/${id}_${visit}_flr_vp.mnc ${output_path}/${id}/${visit}/stx_lin/${id}_${visit}_flr_stx2_lin.mnc \
     --like ${model_path}/Av_FLAIR.mnc --transform ${output_path}/${id}/${visit}/stx_lin/${id}_${visit}_flr_to_icbm_stx2.xfm --order 4 --clobber; fi
 
     volume_pol ${output_path}/${id}/${visit}/stx_lin/${id}_${visit}_t1_stx2_lin.mnc ${model_path}/Av_T1.mnc --order 1 --noclamp --expfile ${output_path}/${id}/tmp/tmp \
     ${output_path}/${id}/${visit}/stx_lin/${id}_${visit}_t1_stx2_lin_vp.mnc  --source_mask ${output_path}/${id}/${visit}/stx_lin/${id}_${visit}_t1_stx2_beast_mask.mnc \
     --target_mask ${model_path}/Mask.mnc --clobber
-    if [ ! -z ${t2} ];then volume_pol ${output_path}/${id}/${visit}/stx_lin/${id}_${visit}_t2_stx2_lin.mnc ${model_path}/Av_T2.mnc --order 1 --noclamp \
+    if [ -f ${t2} ];then volume_pol ${output_path}/${id}/${visit}/stx_lin/${id}_${visit}_t2_stx2_lin.mnc ${model_path}/Av_T2.mnc --order 1 --noclamp \
     --expfile ${output_path}/${id}/tmp/tmp ${output_path}/${id}/${visit}/stx_lin/${id}_${visit}_t2_stx2_lin_vp.mnc  --source_mask ${output_path}/${id}/${visit}/stx_lin/${id}_${visit}_t1_stx2_beast_mask.mnc \
     --target_mask ${model_path}/Mask.mnc --clobber; fi
-    if [ ! -z ${pd} ];then volume_pol ${output_path}/${id}/${visit}/stx_lin/${id}_${visit}_pd_stx2_lin.mnc ${model_path}/Av_PD.mnc --order 1 --noclamp \
+    if [ -f ${pd} ];then volume_pol ${output_path}/${id}/${visit}/stx_lin/${id}_${visit}_pd_stx2_lin.mnc ${model_path}/Av_PD.mnc --order 1 --noclamp \
     --expfile ${output_path}/${id}/tmp/tmp ${output_path}/${id}/${visit}/stx_lin/${id}_${visit}_pd_stx2_lin_vp.mnc  --source_mask ${output_path}/${id}/${visit}/stx_lin/${id}_${visit}_t1_stx2_beast_mask.mnc \
     --target_mask ${model_path}/Mask.mnc --clobber; fi
-    if [ ! -z ${flr} ];then volume_pol ${output_path}/${id}/${visit}/stx_lin/${id}_${visit}_flr_stx2_lin.mnc ${model_path}/Av_FLAIR.mnc --order 1 --noclamp \
+    if [ -f ${flr} ];then volume_pol ${output_path}/${id}/${visit}/stx_lin/${id}_${visit}_flr_stx2_lin.mnc ${model_path}/Av_FLAIR.mnc --order 1 --noclamp \
     --expfile ${output_path}/${id}/tmp/tmp ${output_path}/${id}/${visit}/stx_lin/${id}_${visit}_flr_stx2_lin_vp.mnc  --source_mask ${output_path}/${id}/${visit}/stx_lin/${id}_${visit}_t1_stx2_beast_mask.mnc \
     --target_mask ${model_path}/Mask.mnc --clobber; fi
 
@@ -267,15 +270,19 @@ if [ ${tp} = 1 ];then
     ${output_path}/${id}/${visit}/stx_lin/${id}_${visit}_t1_stx2_beast_mask.mnc,\
     ${output_path}/${id}/${visit}/stx_nlin/${id}_${visit}_inv_nlin_0_inverse_NL.xfm >> ${output_path}/${id}/to_segment_t1.csv 
     
-    if [ ! -z ${flr} ];then     echo Subjects,T1s,FLAIRs,Masks,XFMs >> ${output_path}/${id}/to_segment_t1_flair.csv
-    echo ${id}_${visit}_t1_flair,${output_path}/${id}/${visit}/stx_lin/${id}_${visit}_t1_stx2_lin.mnc,\
-    ${output_path}/${id}/${visit}/stx_lin/${id}_${visit}_flr_stx2_lin.mnc,${output_path}/${id}/${visit}/stx_lin/${id}_${visit}_t1_stx2_beast_mask.mnc,\
-    ${output_path}/${id}/${visit}/stx_nlin/${id}_${visit}_inv_nlin_0_inverse_NL.xfm >> ${output_path}/${id}/to_segment_t1_flair.csv;fi
+    if [ -f ${flr} ];then     
+        echo Subjects,T1s,FLAIRs,Masks,XFMs >> ${output_path}/${id}/to_segment_t1_flair.csv
+        echo ${id}_${visit}_t1_flair,${output_path}/${id}/${visit}/stx_lin/${id}_${visit}_t1_stx2_lin.mnc,\
+        ${output_path}/${id}/${visit}/stx_lin/${id}_${visit}_flr_stx2_lin.mnc,${output_path}/${id}/${visit}/stx_lin/${id}_${visit}_t1_stx2_beast_mask.mnc,\
+        ${output_path}/${id}/${visit}/stx_nlin/${id}_${visit}_inv_nlin_0_inverse_NL.xfm >> ${output_path}/${id}/to_segment_t1_flair.csv
+    fi
     
-    if [ ! -z ${t2} ];then     echo Subjects,T1s,T2s,Masks,XFMs >> ${output_path}/${id}/to_segment_t1_t2.csv
-    echo ${id}_${visit}_t1_t2,${output_path}/${id}/${visit}/stx_lin/${id}_${visit}_t1_stx2_lin.mnc,\
-    ${output_path}/${id}/${visit}/stx_lin/${id}_${visit}_t2_stx2_lin.mnc,${output_path}/${id}/${visit}/stx_lin/${id}_${visit}_t1_stx2_beast_mask.mnc,\
-    ${output_path}/${id}/${visit}/stx_nlin/${id}_${visit}_inv_nlin_0_inverse_NL.xfm >> ${output_path}/${id}/to_segment_t1_t2.csv;fi
+    if [ -f ${t2} ];then     
+        echo Subjects,T1s,T2s,Masks,XFMs >> ${output_path}/${id}/to_segment_t1_t2.csv
+        echo ${id}_${visit}_t1_t2,${output_path}/${id}/${visit}/stx_lin/${id}_${visit}_t1_stx2_lin.mnc,\
+        ${output_path}/${id}/${visit}/stx_lin/${id}_${visit}_t2_stx2_lin.mnc,${output_path}/${id}/${visit}/stx_lin/${id}_${visit}_t1_stx2_beast_mask.mnc,\
+        ${output_path}/${id}/${visit}/stx_nlin/${id}_${visit}_inv_nlin_0_inverse_NL.xfm >> ${output_path}/${id}/to_segment_t1_t2.csv
+    fi
 fi
 tp=$(cat ${input_list}|wc -l)
 ### for longitudinal data: initial rigid registration of timepoints ###
@@ -286,13 +293,16 @@ if [ ${tp} -gt 1 ];then
         tmp=$(cat ${input_list} | head -${timepoint} | tail -1)
         id=$(echo ${tmp}|cut -d , -f 1)
         visit_tp=$(echo ${tmp}|cut -d , -f 2)
+        t2=$(echo ${output_path}/${id}/${visit_tp}/native/${id}_${visit_tp}_t2_vp.mnc)
+        pd=$(echo ${output_path}/${id}/${visit_tp}/native/${id}_${visit_tp}_pd_vp.mnc)
+        flr=$(echo ${output_path}/${id}/${visit_tp}/native/${id}_${visit_tp}_flr_vp.mnc)
         if [ ${timepoint} = 1 ];then
             antsRegistration_affine_SyN.sh --clobber --skip-nonlinear \
                 --fixed-mask ${model_path}/Mask.mnc \
                 ${output_path}/${id}/${visit_tp}/native/${id}_${visit_tp}_t1_vp.mnc \
                 ${model_path}/Av_T1.mnc \
                 ${output_path}/${id}/tmp
-            xfminvert ${output_path}/${id}/tmp0_GenericAffine.xfm ${output_path}/${id}/template/${id}_baseline_to_icbm_stx_ants.xfm
+            xfminvert ${output_path}/${id}/tmp0_GenericAffine.xfm ${output_path}/${id}/template/${id}_baseline_to_icbm_stx_ants.xfm -clobber
 
             cp ${output_path}/${id}/${visit_tp}/native/${id}_${visit_tp}_t1_vp.mnc ${output_path}/${id}/template/${id}_baseline.mnc
             cp ${model_path}/i.xfm  ${output_path}/${id}/template/${id}_${visit_tp}_to_baseline.xfm
@@ -304,10 +314,10 @@ if [ ${tp} -gt 1 ];then
             ${model_path}/ADNI_library/default.2mm.conf -clobber
 
             itk_resample ${output_path}/${id}/template/${id}_${visit_tp}_0_beast_mask.mnc ${output_path}/${id}/template/${id}_${visit_tp}_0_beast_mask_native.mnc \
-            --like ${output_path}/${id}/${visit_tp}/native/${id}_${visit_tp}_t1_vp.mnc--transform ${output_path}/${id}/template/${id}_baseline_to_icbm_stx_ants.xfm --order  --clobber --invert_transform --label
+            --like ${output_path}/${id}/${visit_tp}/native/${id}_${visit_tp}_t1_vp.mnc --transform ${output_path}/${id}/template/${id}_baseline_to_icbm_stx_ants.xfm --order  --clobber --invert_transform --label
 
             antsRegistration_affine_SyN.sh --clobber --skip-nonlinear \
-                --fxied-mask ${model_path}/Mask.mnc \
+                --fixed-mask ${model_path}/Mask.mnc \
                 --moving-mask ${output_path}/${id}/template/${id}_${visit_tp}_0_beast_mask_native.mnc \
                 ${output_path}/${id}/${visit_tp}/native/${id}_${visit_tp}_t1_vp.mnc \
                 ${model_path}/Av_T1.mnc \
@@ -320,7 +330,7 @@ if [ ${tp} -gt 1 ];then
         if [ ${timepoint} -gt 1 ];then
             antsRegistration_affine_SyN.sh --clobber --skip-nonlinear  --linear-type lsq6 \
                 ${output_path}/${id}/${visit_tp}/native/${id}_${visit_tp}_t1_vp.mnc \
-                ${output_path}/${id}/template/${id}_baseline.mnc
+                ${output_path}/${id}/template/${id}_baseline.mnc \
                 ${output_path}/${id}/tmp
             xfminvert -clobber ${output_path}/${id}/tmp0_GenericAffine.xfm ${output_path}/${id}/template/${id}_${visit_tp}_to_baseline.xfm
 
@@ -366,21 +376,24 @@ if [ ${tp} -gt 1 ];then
         tmp=$(cat ${input_list} | head -${timepoint} | tail -1)
         id=$(echo ${tmp}|cut -d , -f 1)
         visit_tp=$(echo ${tmp}|cut -d , -f 2)
+        t2=$(echo ${output_path}/${id}/${visit_tp}/native/${id}_${visit_tp}_t2_vp.mnc)
+        pd=$(echo ${output_path}/${id}/${visit_tp}/native/${id}_${visit_tp}_pd_vp.mnc)
+        flr=$(echo ${output_path}/${id}/${visit_tp}/native/${id}_${visit_tp}_flr_vp.mnc)
         itk_resample ${output_path}/${id}/${visit_tp}/native/${id}_${visit_tp}_t1_vp.mnc ${output_path}/${id}/${visit_tp}/stx_lin/${id}_${visit_tp}_t1_stx2_lin.mnc \
         --like ${model_path}/Av_T1.mnc --transform ${output_path}/${id}/template/${id}_${visit_tp}_to_icbm.xfm --order 4 --clobber
         cp ${output_path}/${id}/template/${id}_${visit_tp}_to_icbm.xfm ${output_path}/${id}/${visit_tp}/stx_lin/
-        if [ ! -z ${t2} ];then xfmconcat ${output_path}/${id}/${visit_tp}/native/${id}_${visit_tp}_t2_to_t1.xfm ${output_path}/${id}/template/${id}_${visit_tp}_to_icbm.xfm \
+        if [ -f ${t2} ];then xfmconcat ${output_path}/${id}/${visit_tp}/native/${id}_${visit_tp}_t2_to_t1.xfm ${output_path}/${id}/template/${id}_${visit_tp}_to_icbm.xfm \
          ${output_path}/${id}/${visit_tp}/stx_lin/${id}_${visit_tp}_t2_to_icbm_stx.xfm -clobber; fi
-        if [ ! -z ${pd} ];then xfmconcat ${output_path}/${id}/${visit_tp}/native/${id}_${visit_tp}_pd_to_t1.xfm ${output_path}/${id}/template/${id}_${visit_tp}_to_icbm.xfm  \
+        if [ -f ${pd} ];then xfmconcat ${output_path}/${id}/${visit_tp}/native/${id}_${visit_tp}_pd_to_t1.xfm ${output_path}/${id}/template/${id}_${visit_tp}_to_icbm.xfm  \
         ${output_path}/${id}/${visit_tp}/stx_lin/${id}_${visit_tp}_pd_to_icbm_stx.xfm -clobber; fi
-       if [ ! -z ${flr} ];then  xfmconcat ${output_path}/${id}/${visit_tp}/native/${id}_${visit_tp}_flr_to_t1.xfm ${output_path}/${id}/template/${id}_${visit_tp}_to_icbm.xfm \
+        if [ -f ${flr} ];then  xfmconcat ${output_path}/${id}/${visit_tp}/native/${id}_${visit_tp}_flr_to_t1.xfm ${output_path}/${id}/template/${id}_${visit_tp}_to_icbm.xfm \
          ${output_path}/${id}/${visit_tp}/stx_lin/${id}_${visit_tp}_flr_to_icbm_stx.xfm -clobber; fi
 
-        if [ ! -z ${t2} ];then itk_resample ${output_path}/${id}/${visit_tp}/native/${id}_${visit_tp}_t2_vp.mnc ${output_path}/${id}/${visit_tp}/stx_lin/${id}_${visit_tp}_t2_stx2_lin.mnc \
+        if [ -f ${t2} ];then itk_resample ${output_path}/${id}/${visit_tp}/native/${id}_${visit_tp}_t2_vp.mnc ${output_path}/${id}/${visit_tp}/stx_lin/${id}_${visit_tp}_t2_stx2_lin.mnc \
         --like ${model_path}/Av_T2.mnc --transform ${output_path}/${id}/${visit_tp}/stx_lin/${id}_${visit_tp}_t2_to_icbm_stx.xfm --order 4 --clobber; fi
-        if [ ! -z ${pd} ];then itk_resample ${output_path}/${id}/${visit_tp}/native/${id}_${visit_tp}_pd_vp.mnc ${output_path}/${id}/${visit_tp}/stx_lin/${id}_${visit_tp}_pd_stx2_lin.mnc \
+        if [ -f ${pd} ];then itk_resample ${output_path}/${id}/${visit_tp}/native/${id}_${visit_tp}_pd_vp.mnc ${output_path}/${id}/${visit_tp}/stx_lin/${id}_${visit_tp}_pd_stx2_lin.mnc \
         --like ${model_path}/Av_PD.mnc --transform ${output_path}/${id}/${visit_tp}/stx_lin/${id}_${visit_tp}_pd_to_icbm_stx.xfm --order 4 --clobber; fi
-        if [ ! -z ${flr} ];then  itk_resample ${output_path}/${id}/${visit_tp}/native/${id}_${visit_tp}_flr_vp.mnc ${output_path}/${id}/${visit_tp}/stx_lin/${id}_${visit_tp}_flr_stx2_lin.mnc \
+        if [ -f ${flr} ];then  itk_resample ${output_path}/${id}/${visit_tp}/native/${id}_${visit_tp}_flr_vp.mnc ${output_path}/${id}/${visit_tp}/stx_lin/${id}_${visit_tp}_flr_stx2_lin.mnc \
         --like ${model_path}/Av_FLAIR.mnc --transform ${output_path}/${id}/${visit_tp}/stx_lin/${id}_${visit_tp}_flr_to_icbm_stx.xfm --order 4 --clobber; fi
 
         ### BEaST brain mask + another round of intensity normalization with the BEaST mask### 
@@ -390,11 +403,11 @@ if [ ${tp} -gt 1 ];then
         ### Second round of intensity normalization with the refined brain mask ###
         volume_pol ${output_path}/${id}/${visit_tp}/stx_lin/${id}_${visit_tp}_t1_stx2_lin.mnc ${model_path}/Av_T1.mnc --order 1 --noclamp --expfile ${output_path}/${id}/tmp/tmp \
         ${output_path}/${id}/${visit_tp}/stx_lin/${id}_${visit_tp}_t1_stx2_lin_vp.mnc  --source_mask ${output_path}/${id}/${visit_tp}/stx_lin/${id}_${visit_tp}_t1_stx2_beast_mask.mnc --target_mask ${model_path}/Mask.mnc --clobber
-        if [ ! -z ${t2} ];then volume_pol ${output_path}/${id}/${visit_tp}/stx_lin/${id}_${visit_tp}_t2_stx2_lin.mnc ${model_path}/Av_T2.mnc --order 1 --noclamp --expfile ${output_path}/${id}/tmp/tmp \
+        if [ -f ${t2} ];then volume_pol ${output_path}/${id}/${visit_tp}/stx_lin/${id}_${visit_tp}_t2_stx2_lin.mnc ${model_path}/Av_T2.mnc --order 1 --noclamp --expfile ${output_path}/${id}/tmp/tmp \
         ${output_path}/${id}/${visit_tp}/stx_lin/${id}_${visit_tp}_t2_stx2_lin_vp.mnc  --source_mask ${output_path}/${id}/${visit_tp}/stx_lin/${id}_${visit_tp}_t1_stx2_beast_mask.mnc --target_mask ${model_path}/Mask.mnc --clobber; fi
-        if [ ! -z ${pd} ];then volume_pol ${output_path}/${id}/${visit_tp}/stx_lin/${id}_${visit_tp}_pd_stx2_lin.mnc ${model_path}/Av_PD.mnc --order 1 --noclamp --expfile ${output_path}/${id}/tmp/tmp \
+        if [ -f ${pd} ];then volume_pol ${output_path}/${id}/${visit_tp}/stx_lin/${id}_${visit_tp}_pd_stx2_lin.mnc ${model_path}/Av_PD.mnc --order 1 --noclamp --expfile ${output_path}/${id}/tmp/tmp \
         ${output_path}/${id}/${visit_tp}/stx_lin/${id}_${visit_tp}_pd_stx2_lin_vp.mnc  --source_mask ${output_path}/${id}/${visit_tp}/stx_lin/${id}_${visit_tp}_t1_stx2_beast_mask.mnc --target_mask ${model_path}/Mask.mnc --clobber; fi
-        if [ ! -z ${flr} ];then volume_pol ${output_path}/${id}/${visit_tp}/stx_lin/${id}_${visit_tp}_flr_stx2_lin.mnc ${model_path}/Av_FLAIR.mnc --order 1 --noclamp --expfile ${output_path}/${id}/tmp/tmp \
+        if [ -f ${flr} ];then volume_pol ${output_path}/${id}/${visit_tp}/stx_lin/${id}_${visit_tp}_flr_stx2_lin.mnc ${model_path}/Av_FLAIR.mnc --order 1 --noclamp --expfile ${output_path}/${id}/tmp/tmp \
         ${output_path}/${id}/${visit_tp}/stx_lin/${id}_${visit_tp}_flr_stx2_lin_vp.mnc  --source_mask ${output_path}/${id}/${visit_tp}/stx_lin/${id}_${visit_tp}_t1_stx2_beast_mask.mnc --target_mask ${model_path}/Mask.mnc --clobber; fi
     done
 fi
@@ -476,22 +489,24 @@ fi
 ### Running BISON for tissue classification ###
 
 if [ ${tp} -gt 1 ];then 
+echo Subjects,T1s,Masks,XFMs >> ${output_path}/${id}/to_segment_t1.csv
+echo Subjects,T1s,T2s,Masks,XFMs >> ${output_path}/${id}/to_segment_t1_t2.csv
 echo Subjects,T1s,FLAIRs,Masks,XFMs >> ${output_path}/${id}/to_segment_t1_flair.csv
-if [ ! -z ${t2} ];then echo Subjects,T1s,T2s,Masks,XFMs >> ${output_path}/${id}/to_segment_t1_t2.csv; fi
-if [ ! -z ${flr} ];then echo Subjects,T1s,Masks,XFMs >> ${output_path}/${id}/to_segment_t1.csv; fi
 for timepoint in $(seq 1 ${tp});do
     tmp=$(cat ${input_list} | head -${timepoint} | tail -1)
     id=$(echo ${tmp}|cut -d , -f 1)
     visit_tp=$(echo ${tmp}|cut -d , -f 2)
+    t2=$(echo ${output_path}/${id}/${visit_tp}/native/${id}_${visit_tp}_t2_vp.mnc)
+    flr=$(echo ${output_path}/${id}/${visit_tp}/native/${id}_${visit_tp}_flr_vp.mnc)
     echo ${id}_${visit_tp}_t1,${output_path}/${id}/${visit_tp}/stx_lin/${id}_${visit_tp}_t1_stx2_lin.mnc,\
     ${output_path}/${id}/${visit_tp}/stx_lin/${id}_${visit_tp}_t1_stx2_beast_mask.mnc,\
     ${output_path}/${id}/${visit_tp}/stx_nlin/${id}_${visit_tp}_inv_nlin_0_NL.xfm >> ${output_path}/${id}/to_segment_t1.csv 
-    if [ ! -z ${flr} ];then echo ${id}_${visit_tp}_t1_flair,${output_path}/${id}/${visit_tp}/stx_lin/${id}_${visit_tp}_t1_stx2_lin.mnc,\
-    ${output_path}/${id}/${visit_tp}/stx_lin/${id}_${visit_tp}_flr_stx2_lin.mnc,${output_path}/${id}/${visit_tp}/stx_lin/${id}_${visit_tp}_t1_stx2_beast_mask.mnc,\
-    ${output_path}/${id}/${visit_tp}/stx_nlin/${id}_${visit_tp}_inv_nlin_0_NL.xfm >> ${output_path}/${id}/to_segment_t1_flair.csv; fi
-    if [ ! -z ${t2} ];then echo ${id}_${visit_tp}_t1_t2,${output_path}/${id}/${visit_tp}/stx_lin/${id}_${visit_tp}_t1_stx2_lin.mnc,\
+    if [ -f ${t2} ];then echo ${id}_${visit_tp}_t1_t2,${output_path}/${id}/${visit_tp}/stx_lin/${id}_${visit_tp}_t1_stx2_lin.mnc,\
     ${output_path}/${id}/${visit_tp}/stx_lin/${id}_${visit_tp}_t2_stx2_lin.mnc,${output_path}/${id}/${visit_tp}/stx_lin/${id}_${visit_tp}_t1_stx2_beast_mask.mnc,\
     ${output_path}/${id}/${visit_tp}/stx_nlin/${id}_${visit_tp}_inv_nlin_0_NL.xfm >> ${output_path}/${id}/to_segment_t1_t2.csv; fi
+    if [ -f ${flr} ];then echo ${id}_${visit_tp}_t1_flr,${output_path}/${id}/${visit_tp}/stx_lin/${id}_${visit_tp}_t1_stx2_lin.mnc,\
+    ${output_path}/${id}/${visit_tp}/stx_lin/${id}_${visit_tp}_flr_stx2_lin.mnc,${output_path}/${id}/${visit_tp}/stx_lin/${id}_${visit_tp}_t1_stx2_beast_mask.mnc,\
+    ${output_path}/${id}/${visit_tp}/stx_nlin/${id}_${visit_tp}_inv_nlin_0_NL.xfm >> ${output_path}/${id}/to_segment_t1_flair.csv; fi
 done
 fi
 
@@ -499,9 +514,12 @@ echo "BISON"
 
 python ${model_path}/BISON.py -c RF0 -m ${model_path}/Pretrained_Library_ADNI_L9/ \
  -o  ${output_path}/${id}/tmp/ -t ${output_path}/${id}/tmp/ -e PT -n  ${output_path}/${id}/to_segment_t1.csv  -p  ${model_path}/Pretrained_Library_ADNI_L9/ -l 9
-if [ ! -z ${t2} ];then  python ${model_path}/BISON.py -c RF0 -m ${model_path}/Pretrained_Library_ADNI_T1_T2_L9/ \
+
+t2f=$(cat ${output_path}/${id}/to_segment_t1_t2.csv|wc -l)
+if [ ${t2f} -gt 1 ];then  python ${model_path}/BISON.py -c RF0 -m ${model_path}/Pretrained_Library_ADNI_T1_T2_L9/ \
  -o  ${output_path}/${id}/tmp/ -t ${output_path}/${id}/tmp/ -e PT -n  ${output_path}/${id}/to_segment_t1_t2.csv  -p  ${model_path}/Pretrained_Library_ADNI_T1_T2_L9/ -l 9; fi
-if [ ! -z ${flr} ];then  python ${model_path}/BISON.py -c RF0 -m ${model_path}/Pretrained_Library_ADNI_T1_FLAIR_L9/ \
+flairf=$(cat ${output_path}/${id}/to_segment_t1_flair.csv|wc -l)
+if [ ${flairf} -gt 1 ];then  python ${model_path}/BISON.py -c RF0 -m ${model_path}/Pretrained_Library_ADNI_T1_FLAIR_L9/ \
  -o  ${output_path}/${id}/tmp/ -t ${output_path}/${id}/tmp/ -e PT -n  ${output_path}/${id}/to_segment_t1_flair.csv  -p  ${model_path}/Pretrained_Library_ADNI_T1_FLAIR_L9/ -l 9; fi
 
 ### Voxel-Based Mprphometry (VBM) ###
@@ -539,13 +557,16 @@ for timepoint in $(seq 1 ${tp});do
     tmp=$(cat ${input_list} | head -${timepoint} | tail -1)
     id=$(echo ${tmp}|cut -d , -f 1)
     visit_tp=$(echo ${tmp}|cut -d , -f 2)
+    t2=$(echo ${output_path}/${id}/${visit_tp}/native/${id}_${visit_tp}_t2_vp.mnc)
+    pd=$(echo ${output_path}/${id}/${visit_tp}/native/${id}_${visit_tp}_pd_vp.mnc)
+    flr=$(echo ${output_path}/${id}/${visit_tp}/native/${id}_${visit_tp}_flr_vp.mnc) 
     minc_qc.pl ${output_path}/${id}/${visit_tp}/stx_lin/${id}_${visit_tp}_t1_stx2_lin_vp.mnc ${output_path}/${id}/qc/${id}_${visit_tp}_t1_stx2_lin_vp.jpg \
      --mask ${model_path}/outline.mnc --big --clobber  --image-range 0 100
-    if [ ! -z ${t2} ];then minc_qc.pl ${output_path}/${id}/${visit_tp}/stx_lin/${id}_${visit_tp}_t2_stx2_lin_vp.mnc ${output_path}/${id}/qc/${id}_${visit_tp}_t2_stx2_lin_vp.jpg \
+    if [ -f ${t2} ];then minc_qc.pl ${output_path}/${id}/${visit_tp}/stx_lin/${id}_${visit_tp}_t2_stx2_lin_vp.mnc ${output_path}/${id}/qc/${id}_${visit_tp}_t2_stx2_lin_vp.jpg \
      --mask ${model_path}/outline.mnc --big --clobber  --image-range 0 100; fi
-    if [ ! -z ${pd} ];then minc_qc.pl ${output_path}/${id}/${visit_tp}/stx_lin/${id}_${visit_tp}_pd_stx2_lin_vp.mnc ${output_path}/${id}/qc/${id}_${visit_tp}_pd_stx2_lin_vp.jpg \
+    if [ -f ${pd} ];then minc_qc.pl ${output_path}/${id}/${visit_tp}/stx_lin/${id}_${visit_tp}_pd_stx2_lin_vp.mnc ${output_path}/${id}/qc/${id}_${visit_tp}_pd_stx2_lin_vp.jpg \
      --mask ${model_path}/outline.mnc --big --clobber  --image-range 0 100; fi
-    if [ ! -z ${flr} ];then  minc_qc.pl ${output_path}/${id}/${visit_tp}/stx_lin/${id}_${visit_tp}_flr_stx2_lin_vp.mnc ${output_path}/${id}/qc/${id}_${visit_tp}_flr_stx2_lin_vp.jpg \
+    if [ -f ${flr} ];then  minc_qc.pl ${output_path}/${id}/${visit_tp}/stx_lin/${id}_${visit_tp}_flr_stx2_lin_vp.mnc ${output_path}/${id}/qc/${id}_${visit_tp}_flr_stx2_lin_vp.jpg \
      --mask ${model_path}/outline.mnc --big --clobber  --image-range 0 100; fi
     minc_qc.pl ${output_path}/${id}/${visit_tp}/stx_lin/${id}_${visit_tp}_t1_stx2_lin_vp.mnc ${output_path}/${id}/qc/${id}_${visit_tp}_t1_mask.jpg \
      --mask ${output_path}/${id}/${visit_tp}/stx_lin/${id}_${visit_tp}_t1_stx2_beast_mask.mnc --big --clobber  --image-range 0 100 
@@ -557,8 +578,7 @@ done
 rm -rf ${output_path}/${id}/tmp/
 rm ${output_path}/${id}/*/*/*tmp.xfm
 rm ${output_path}/${id}/*/*/*tmp.mnc
-rm ${output_path}/${id}/*/*/*tmp
 rm ${output_path}/${id}/*/native/*anlm*
 rm ${output_path}/${id}/*/native/*n3*
 rm ${output_path}/${id}/*/cls/*Prob_Label*
-rm ${output_path}/${id}/*.csv
+#rm ${output_path}/${id}/*.csv
