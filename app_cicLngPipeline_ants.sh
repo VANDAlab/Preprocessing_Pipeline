@@ -266,19 +266,19 @@ if [ ${tp} = 1 ];then
     grid_proc --det ${output_path}/${id}/${visit}/stx_nlin/${id}_${visit}_inv_nlin_0_inverse_NL_grid_0.mnc ${output_path}/${id}/${visit}/vbm/${id}_${visit}_dbm.mnc --clobber
     
     echo Subjects,T1s,Masks,XFMs >> ${output_path}/${id}/to_segment_t1.csv
+    echo Subjects,T1s,FLAIRs,Masks,XFMs >> ${output_path}/${id}/to_segment_t1_flair.csv
+    echo Subjects,T1s,T2s,Masks,XFMs >> ${output_path}/${id}/to_segment_t1_t2.csv
     echo ${id}_${visit}_t1,${output_path}/${id}/${visit}/stx_lin/${id}_${visit}_t1_stx2_lin.mnc,\
     ${output_path}/${id}/${visit}/stx_lin/${id}_${visit}_t1_stx2_beast_mask.mnc,\
     ${output_path}/${id}/${visit}/stx_nlin/${id}_${visit}_inv_nlin_0_inverse_NL.xfm >> ${output_path}/${id}/to_segment_t1.csv 
     
     if [ -f ${flr} ];then     
-        echo Subjects,T1s,FLAIRs,Masks,XFMs >> ${output_path}/${id}/to_segment_t1_flair.csv
         echo ${id}_${visit}_t1_flair,${output_path}/${id}/${visit}/stx_lin/${id}_${visit}_t1_stx2_lin.mnc,\
         ${output_path}/${id}/${visit}/stx_lin/${id}_${visit}_flr_stx2_lin.mnc,${output_path}/${id}/${visit}/stx_lin/${id}_${visit}_t1_stx2_beast_mask.mnc,\
         ${output_path}/${id}/${visit}/stx_nlin/${id}_${visit}_inv_nlin_0_inverse_NL.xfm >> ${output_path}/${id}/to_segment_t1_flair.csv
     fi
     
     if [ -f ${t2} ];then     
-        echo Subjects,T1s,T2s,Masks,XFMs >> ${output_path}/${id}/to_segment_t1_t2.csv
         echo ${id}_${visit}_t1_t2,${output_path}/${id}/${visit}/stx_lin/${id}_${visit}_t1_stx2_lin.mnc,\
         ${output_path}/${id}/${visit}/stx_lin/${id}_${visit}_t2_stx2_lin.mnc,${output_path}/${id}/${visit}/stx_lin/${id}_${visit}_t1_stx2_beast_mask.mnc,\
         ${output_path}/${id}/${visit}/stx_nlin/${id}_${visit}_inv_nlin_0_inverse_NL.xfm >> ${output_path}/${id}/to_segment_t1_t2.csv
