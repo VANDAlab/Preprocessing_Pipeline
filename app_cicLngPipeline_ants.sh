@@ -560,8 +560,10 @@ for timepoint in $(seq 1 ${tp});do
     t2=$(echo ${output_path}/${id}/${visit_tp}/native/${id}_${visit_tp}_t2_vp.mnc)
     pd=$(echo ${output_path}/${id}/${visit_tp}/native/${id}_${visit_tp}_pd_vp.mnc)
     flr=$(echo ${output_path}/${id}/${visit_tp}/native/${id}_${visit_tp}_flr_vp.mnc) 
-    minc_qc.pl ${output_path}/${id}/${visit_tp}/stx_lin/${id}_${visit_tp}_t1_stx2_lin_vp.mnc ${output_path}/${id}/qc/${id}_${visit_tp}_t1_stx2_lin_vp.jpg \
+    minc_qc.pl ${output_path}/${id}/${visit_tp}/stx_lin/${id}_${visit_tp}_t1_stx2_lin_vp.mnc ${output_path}/${id}/qc/${id}_${visit_tp}_t1_stx2_lin_vp_light.jpg \
      --mask ${model_path}/outline.mnc --big --clobber  --image-range 0 100
+    minc_qc.pl ${output_path}/${id}/${visit_tp}/stx_lin/${id}_${visit_tp}_t1_stx2_lin_vp.mnc ${output_path}/${id}/qc/${id}_${visit_tp}_t1_stx2_lin_vp.jpg \
+     --mask ${model_path}/outline.mnc --big --clobber  --image-range 0 250
     if [ -f ${t2} ];then minc_qc.pl ${output_path}/${id}/${visit_tp}/stx_lin/${id}_${visit_tp}_t2_stx2_lin_vp.mnc ${output_path}/${id}/qc/${id}_${visit_tp}_t2_stx2_lin_vp.jpg \
      --mask ${model_path}/outline.mnc --big --clobber  --image-range 0 100; fi
     if [ -f ${pd} ];then minc_qc.pl ${output_path}/${id}/${visit_tp}/stx_lin/${id}_${visit_tp}_pd_stx2_lin_vp.mnc ${output_path}/${id}/qc/${id}_${visit_tp}_pd_stx2_lin_vp.jpg \
@@ -570,8 +572,10 @@ for timepoint in $(seq 1 ${tp});do
      --mask ${model_path}/outline.mnc --big --clobber  --image-range 0 100; fi
     minc_qc.pl ${output_path}/${id}/${visit_tp}/stx_lin/${id}_${visit_tp}_t1_stx2_lin_vp.mnc ${output_path}/${id}/qc/${id}_${visit_tp}_t1_mask.jpg \
      --mask ${output_path}/${id}/${visit_tp}/stx_lin/${id}_${visit_tp}_t1_stx2_beast_mask.mnc --big --clobber  --image-range 0 100 
+    minc_qc.pl ${output_path}/${id}/${visit_tp}/stx_nlin/${id}_${visit_tp}_nlin.mnc  ${output_path}/${id}/qc/${id}_${visit_tp}_stx2_nlin_light.jpg \
+     --mask ${model_path}/outline.mnc --big --clobber  --image-range 0 100   
     minc_qc.pl ${output_path}/${id}/${visit_tp}/stx_nlin/${id}_${visit_tp}_nlin.mnc  ${output_path}/${id}/qc/${id}_${visit_tp}_stx2_nlin.jpg \
-     --mask ${model_path}/outline.mnc --big --clobber  --image-range 0 100     
+     --mask ${model_path}/outline.mnc --big --clobber  --image-range 0 25   
 done
 
 ### removing unnecessary intermediate files ###
