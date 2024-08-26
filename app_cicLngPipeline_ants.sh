@@ -575,7 +575,7 @@ for timepoint in $(seq 1 ${tp});do
     minc_qc.pl ${output_path}/${id}/${visit_tp}/stx_nlin/${id}_${visit_tp}_nlin.mnc  ${output_path}/${id}/qc/${id}_${visit_tp}_stx2_nlin_light.jpg \
      --mask ${model_path}/outline.mnc --big --clobber  --image-range 0 100   
     minc_qc.pl ${output_path}/${id}/${visit_tp}/stx_nlin/${id}_${visit_tp}_nlin.mnc  ${output_path}/${id}/qc/${id}_${visit_tp}_stx2_nlin.jpg \
-     --mask ${model_path}/outline.mnc --big --clobber  --image-range 0 25   
+     --mask ${model_path}/outline.mnc --big --clobber  --image-range 0 250   
 done
 
 ### removing unnecessary intermediate files ###
