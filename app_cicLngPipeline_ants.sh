@@ -117,11 +117,11 @@ for i in $(cat ${input_list});do
     xfminvert -clobber ${output_path}/${id}/tmp0_GenericAffine.xfm ${output_path}/${id}/${visit}/stx_lin/${id}_${visit}_t1_to_icbm_stx_tmp.xfm
 
     if [ ! -z ${t2} ];then xfmconcat ${output_path}/${id}/${visit}/native/${id}_${visit}_t2_to_t1.xfm ${output_path}/${id}/${visit}/stx_lin/${id}_${visit}_t1_to_icbm_stx_tmp.xfm \
-    ${output_path}/${id}/${visit}/stx_lin/${id}_${visit}_t2_to_icbm_stx_tmp.xfm; fi
+    ${output_path}/${id}/${visit}/stx_lin/${id}_${visit}_t2_to_icbm_stx_tmp.xfm -clobber; fi
     if [ ! -z ${pd} ];then xfmconcat ${output_path}/${id}/${visit}/native/${id}_${visit}_pd_to_t1.xfm ${output_path}/${id}/${visit}/stx_lin/${id}_${visit}_t1_to_icbm_stx_tmp.xfm \
-    ${output_path}/${id}/${visit}/stx_lin/${id}_${visit}_pd_to_icbm_stx_tmp.xfm; fi
+    ${output_path}/${id}/${visit}/stx_lin/${id}_${visit}_pd_to_icbm_stx_tmp.xfm -clobber; fi
     if [ ! -z ${flr} ];then  xfmconcat ${output_path}/${id}/${visit}/native/${id}_${visit}_flr_to_t1.xfm ${output_path}/${id}/${visit}/stx_lin/${id}_${visit}_t1_to_icbm_stx_tmp.xfm \
-    ${output_path}/${id}/${visit}/stx_lin/${id}_${visit}_flr_to_icbm_stx_tmp.xfm; fi
+    ${output_path}/${id}/${visit}/stx_lin/${id}_${visit}_flr_to_icbm_stx_tmp.xfm -clobber; fi
 
     mincresample  ${model_path}/Mask.mnc -like ${t1} ${output_path}/${id}/${visit}/native/${id}_${visit}_t1_mask_tmp.mnc -transform \
     ${output_path}/${id}/${visit}/stx_lin/${id}_${visit}_t1_to_icbm_stx_tmp.xfm -inv -nearest -clobber
