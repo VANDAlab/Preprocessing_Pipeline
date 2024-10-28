@@ -15,10 +15,16 @@ if [ $# -eq 3 ];then
     input_list=$1
     model_path=$2
     output_path=$3
+    secondary_template_path=output_path
+elif [ $# -eq 4 ];then
+    input_list=$1
+    model_path=$2
+    output_path=$3
+    secondary_template_path=$4
 else
- echo "Usage $0 <input list> <model path> <output_path>"
- echo "Outputs will be saved in <output_path> folder"
- exit 1
+    echo "Usage $0 <input list> <model path> <output_path> <secondary template path>"
+    echo "Outputs will be saved in <output_path> folder"
+    exit 1
 fi
 
 ### Naming Conventions ###
@@ -265,6 +271,34 @@ if [ ${tp} = 1 ];then
             --like ${model_path}/Av_T1.mnc --transform ${output_path}/${id}/${visit}/stx_nlin/${id}_${visit}_inv_nlin_0_inverse_NL.xfm --order 4 --clobber --invert_transform
     grid_proc --det ${output_path}/${id}/${visit}/stx_nlin/${id}_${visit}_inv_nlin_0_inverse_NL_grid_0.mnc ${output_path}/${id}/${visit}/vbm/${id}_${visit}_dbm.mnc --clobber
     
+    if [ -f ${secondary_template_path}/Av_T1.mnc ];then
+        src=${output_path}/${id}/${visit}/stx_lin/${id}_${visit}_t1_stx2_lin_vp.mnc
+        trg=${secondary_template_path}/Av_T1.mnc
+        src_mask=${output_path}/${id}/${visit}/stx_lin/${id}_${visit}_t1_stx2_beast_mask.mnc
+        trg_mask=${secondary_template_path}/Mask.mnc
+        outp=${output_path}/${id}/${visit}/stx_nlin/${id}_${visit}_secondary_template_inv_nlin_
+        if [ ! -z $trg_mask ];then
+            mask="-x [${src_mask},${trg_mask}] "
+        fi
+    
+        antsRegistration -v -d 3 --float 1  --output "[${outp}]"  --use-histogram-matching 0 --winsorize-image-intensities "[0.005,0.995]" \
+        --transform "SyN[0.7,3,0]" --metric "CC[${src},${trg},1,4]" --convergence "[50x50x30,1e-6,10]" --shrink-factors 4x2x1 --smoothing-sigmas 2x1x0vox ${mask} --minc
+
+        itk_resample ${output_path}/${id}/${visit}/stx_lin/${id}_${visit}_t1_stx2_lin_vp.mnc ${output_path}/${id}/${visit}/stx_nlin/${id}_${visit}_secondary_template_nlin.mnc \
+            --like ${secondary_template_path}/Av_T1.mnc --transform ${output_path}/${id}/${visit}/stx_nlin/${id}_${visit}_secondary_template_inv_nlin_0_inverse_NL.xfm --order 4 --clobber --invert_transform
+        grid_proc --det ${output_path}/${id}/${visit}/stx_nlin/${id}_${visit}_secondary_template_inv_nlin_0_inverse_NL_grid_0.mnc ${output_path}/${id}/${visit}/vbm/${id}_${visit}_secondary_template_dbm.mnc --clobber
+    
+        ### repeating DBM with seconday template as intermediate step
+        xfmconcat ${secondary_template_path}/to_icbm_sym_0_inverse_NL.xfm ${output_path}/${id}/${visit}/stx_nlin/${id}_${visit}_secondary_template_inv_nlin_0_inverse_NL.xfm \
+            ${output_path}/${id}/${visit}/stx_nlin/${id}_${visit}_secondary_template_three_inverse_NL.xfm -clobber
+        xfm_normalize.pl ${output_path}/${id}/${visit}/stx_nlin/${id}_${visit}_secondary_template_three_inverse_NL.xfm ${output_path}/${id}/${visit}/stx_nlin/${id}_${visit}_secondary_template_3_inv_nlin_0_NL.xfm \
+        --like ${secondary_template_path}/Av_T1.mnc --exact --clobber
+        itk_resample ${output_path}/${id}/${visit}/stx_lin/${id}_${visit}_t1_stx2_lin_vp.mnc ${output_path}/${id}/${visit}/stx_nlin/${id}_${visit}_secondary_template_3_nlin.mnc \
+            --like ${model_path}/Av_T1.mnc --transform ${output_path}/${id}/${visit}/stx_nlin/${id}_${visit}_secondary_template_3_inv_nlin_0_NL.xfm --order 4 --clobber --invert_transform
+        grid_proc --det ${output_path}/${id}/${visit}/stx_nlin/${id}_${visit}_secondary_template_3_inv_nlin_0_NL_grid_0.mnc ${output_path}/${id}/${visit}/vbm/${id}_${visit}_indirect_dbm.mnc
+    
+    fi
+
     echo Subjects,T1s,Masks,XFMs >> ${output_path}/${id}/to_segment_t1.csv
     echo Subjects,T1s,FLAIRs,Masks,XFMs >> ${output_path}/${id}/to_segment_t1_flair.csv
     echo Subjects,T1s,T2s,Masks,XFMs >> ${output_path}/${id}/to_segment_t1_t2.csv
@@ -482,10 +516,48 @@ if [ ${tp} -gt 1 ];then
         --like ${model_path}/Av_T1.mnc --exact --clobber
         itk_resample ${output_path}/${id}/${visit_tp}/stx_lin/${id}_${visit_tp}_t1_stx2_lin_vp.mnc ${output_path}/${id}/${visit_tp}/stx_nlin/${id}_${visit_tp}_nlin.mnc \
             --like ${model_path}/Av_T1.mnc --transform ${output_path}/${id}/${visit_tp}/stx_nlin/${id}_${visit_tp}_inv_nlin_0_NL.xfm --order 4 --clobber --invert_transform
-        grid_proc --det ${output_path}/${id}/${visit_tp}/stx_nlin/${id}_${visit_tp}_inv_nlin_0_NL_grid_0.mnc ${output_path}/${id}/${visit_tp}/vbm/${id}_${visit_tp}_dbm.mnc
+        grid_proc --det ${output_path}/${id}/${visit_tp}/stx_nlin/${id}_${visit_tp}_inv_nlin_0_NL_grid_0.mnc ${output_path}/${id}/${visit_tp}/vbm/${id}_${visit_tp}_dbm.mnc       
     done
-fi
 
+    if [ -f ${secondary_template_path}/Av_T1.mnc ];then
+        src=${output_path}/${id}/template/${id}_nlin_av.mnc
+        trg=${secondary_template_path}/Av_T1.mnc
+        src_mask=${output_path}/${id}/template/${id}_mask.mnc
+        trg_mask=${secondary_template_path}/Mask.mnc
+        outp=${output_path}/${id}/template/${id}_secondary_template_nlin_av_to_ref_nl_ants_
+        if [ ! -z $trg_mask ];then
+            mask="-x [${src_mask},${trg_mask}] "
+        fi
+        antsRegistration -v -d 3 --float 1  --output "[${outp}]"  --use-histogram-matching 0 --winsorize-image-intensities "[0.005,0.995]" \
+        --transform "SyN[0.7,3,0]" --metric "CC[${src},${trg},1,4]" --convergence "[50x50x30,1e-6,10]" --shrink-factors 4x2x1 --smoothing-sigmas 2x1x0vox ${mask} --minc
+        itk_resample ${output_path}/${id}/template/${id}_nlin_av.mnc ${output_path}/${id}/template/${id}_secondary_template_nlin_av_to_icbm.mnc \
+        --like ${model_path}/Av_T1.mnc --transform ${output_path}/${id}/template/${id}_secondary_template_nlin_av_to_ref_nl_ants_0_inverse_NL.xfm --order 4 --clobber --invert_transform
+        ### Deformation-Based Mprphometry (DBM) ###
+        tp=$(cat ${input_list}|wc -l)
+        if [ ${tp} -gt 1 ];then 
+            for timepoint in $(seq 1 ${tp});do
+                tmp=$(cat ${input_list} | head -${timepoint} | tail -1)
+                visit_tp=$(echo ${tmp}|cut -d , -f 2)
+                xfmconcat ${output_path}/${id}/template/${id}_secondary_template_nlin_av_to_ref_nl_ants_0_inverse_NL.xfm ${output_path}/${id}/template/${id}_${visit_tp}_nl_ants_0_inverse_NL.xfm \
+                    ${output_path}/${id}/${visit_tp}/stx_nlin/${id}_${visit_tp}_secondary_template_both_inverse_NL.xfm -clobber
+                xfm_normalize.pl ${output_path}/${id}/${visit_tp}/stx_nlin/${id}_${visit_tp}_secondary_template_both_inverse_NL.xfm ${output_path}/${id}/${visit_tp}/stx_nlin/${id}_${visit_tp}_secondary_template_inv_nlin_0_NL.xfm \
+                --like ${secondary_template_path}/Av_T1.mnc --exact --clobber
+                itk_resample ${output_path}/${id}/${visit_tp}/stx_lin/${id}_${visit_tp}_t1_stx2_lin_vp.mnc ${output_path}/${id}/${visit_tp}/stx_nlin/${id}_${visit_tp}_secondary_template_nlin.mnc \
+                    --like ${secondary_template_path}/Av_T1.mnc --transform ${output_path}/${id}/${visit_tp}/stx_nlin/${id}_${visit_tp}_secondary_template_inv_nlin_0_NL.xfm --order 4 --clobber --invert_transform
+                grid_proc --det ${output_path}/${id}/${visit_tp}/stx_nlin/${id}_${visit_tp}_secondary_template_inv_nlin_0_NL_grid_0.mnc ${output_path}/${id}/${visit_tp}/vbm/${id}_${visit_tp}_secondary_template_dbm.mnc
+        ### repeating DBM with seconday template as intermediate step
+                xfmconcat ${secondary_template_path}/to_icbm_sym_0_inverse_NL.xfm ${output_path}/${id}/template/${id}_secondary_template_nlin_av_to_ref_nl_ants_0_inverse_NL.xfm ${output_path}/${id}/template/${id}_${visit_tp}_nl_ants_0_inverse_NL.xfm \
+                    ${output_path}/${id}/${visit_tp}/stx_nlin/${id}_${visit_tp}_secondary_template_three_inverse_NL.xfm -clobber
+                xfm_normalize.pl ${output_path}/${id}/${visit_tp}/stx_nlin/${id}_${visit_tp}_secondary_template_three_inverse_NL.xfm ${output_path}/${id}/${visit_tp}/stx_nlin/${id}_${visit_tp}_secondary_template_3_inv_nlin_0_NL.xfm \
+                --like ${secondary_template_path}/Av_T1.mnc --exact --clobber
+                itk_resample ${output_path}/${id}/${visit_tp}/stx_lin/${id}_${visit_tp}_t1_stx2_lin_vp.mnc ${output_path}/${id}/${visit_tp}/stx_nlin/${id}_${visit_tp}_secondary_template_3_nlin.mnc \
+                    --like ${model_path}/Av_T1.mnc --transform ${output_path}/${id}/${visit_tp}/stx_nlin/${id}_${visit_tp}_secondary_template_3_inv_nlin_0_NL.xfm --order 4 --clobber --invert_transform
+                grid_proc --det ${output_path}/${id}/${visit_tp}/stx_nlin/${id}_${visit_tp}_secondary_template_3_inv_nlin_0_NL_grid_0.mnc ${output_path}/${id}/${visit_tp}/vbm/${id}_${visit_tp}_indirect_dbm.mnc
+            
+            done
+        fi
+    fi
+fi
 ### Running BISON for tissue classification ###
 
 if [ ${tp} -gt 1 ];then 
@@ -576,6 +648,13 @@ for timepoint in $(seq 1 ${tp});do
      --mask ${model_path}/outline.mnc --big --clobber  --image-range 0 100   
     minc_qc.pl ${output_path}/${id}/${visit_tp}/stx_nlin/${id}_${visit_tp}_nlin.mnc  ${output_path}/${id}/qc/${id}_${visit_tp}_stx2_nlin.jpg \
      --mask ${model_path}/outline.mnc --big --clobber  --image-range 0 250   
+
+    if [ -f ${secondary_template_path}/Av_T1.mnc ];then
+        minc_qc.pl ${output_path}/${id}/${visit_tp}/stx_nlin/${id}_${visit_tp}_secondary_template_nlin.mnc  ${output_path}/${id}/qc/${id}_${visit_tp}_stx2_secondary_template_nlin.jpg \
+        --mask ${secondary_template_path}/outline.mnc --big --clobber  --image-range 0 250
+        minc_qc.pl ${output_path}/${id}/${visit_tp}/stx_nlin/${id}_${visit_tp}_secondary_template_3_nlin.mnc  ${output_path}/${id}/qc/${id}_${visit_tp}_stx2_indirect_nlin.jpg \
+        --mask ${model_path}/outline.mnc --big --clobber  --image-range 0 250
+    fi
 done
 
 ### removing unnecessary intermediate files ###
@@ -585,4 +664,11 @@ rm ${output_path}/${id}/*/*/*tmp.mnc
 rm ${output_path}/${id}/*/native/*anlm*
 rm ${output_path}/${id}/*/native/*n3*
 rm ${output_path}/${id}/*/cls/*Prob_Label*
-#rm ${output_path}/${id}/*.csv
+rm ${output_path}/${id}/*/stx_nlin/*0_NL*
+rm ${output_path}/${id}/*/stx_nlin/*secondary_template_3*
+rm ${output_path}/${id}/*/stx_nlin/*three*
+rm ${output_path}/${id}/template/*0_NL*
+rm ${output_path}/${id}/*.csv
+rm ${output_path}/${id}/*.xfm
+
+
