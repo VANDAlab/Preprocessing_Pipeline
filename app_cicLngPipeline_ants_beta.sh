@@ -588,9 +588,9 @@ if [ ${tp} -gt 1 ];then
         t2=$(echo ${output_path}/${id}/${visit_tp}/native/${id}_${visit_tp}_t2_vp.mnc)
         flr=$(echo ${output_path}/${id}/${visit_tp}/native/${id}_${visit_tp}_flr_vp.mnc)
 
-        path_t1_bison=$(echo ${output_path}/${id}/${visit_tp}/cls/${id}_${visit_tp}_t1_Labelr.mnc)
-        path_t2_bison=$(echo ${output_path}/${id}/${visit_tp}/cls/${id}_${visit_tp}_t1_t2_Labelr.mnc)
-        path_flr_bison=$(echo ${output_path}/${id}/${visit_tp}/cls/${id}_${visit_tp}_t1_flr_Labelr.mnc)
+        path_t1_bison=$(echo ${output_path}/${id}/${visit_tp}/cls/RF0_${id}_${visit_tp}_t1_Labelr.mnc)
+        path_t2_bison=$(echo ${output_path}/${id}/${visit_tp}/cls/RF0_${id}_${visit_tp}_t1_t2_Labelr.mnc)
+        path_flr_bison=$(echo ${output_path}/${id}/${visit_tp}/cls/RF0_${id}_${visit_tp}_t1_flr_Labelr.mnc)
 
         if [ ! -f ${path_t1_bison} ];then
             echo ${id}_${visit_tp}_t1,${output_path}/${id}/${visit_tp}/stx_lin/${id}_${visit_tp}_t1_stx2_lin.mnc,\
