@@ -184,7 +184,7 @@ t2=$(echo ${output_path}/${id}/${visit}/native/${id}_${visit}_t2_vp.mnc)
 pd=$(echo ${output_path}/${id}/${visit}/native/${id}_${visit}_pd_vp.mnc)
 flr=$(echo ${output_path}/${id}/${visit}/native/${id}_${visit}_flr_vp.mnc)
 ### for just one timepoint; i.e. cross-sectional data ###
-if [ ! -f ${path_t1_stx} ] &&[ ${tp} = 1 ];then 
+if [ ! -f ${path_t1_stx} ] && [ ${tp} = 1 ];then
     echo "cross-sectional data"
     echo "Linear stx registration"
     antsRegistration_affine_SyN.sh --clobber --skip-nonlinear \
@@ -265,7 +265,7 @@ if [ ! -f ${path_t1_stx} ] &&[ ${tp} = 1 ];then
     ${output_path}/${id}/${visit}/stx_lin/${id}_${visit}_t1_stx2_beast_mask.mnc,\
     ${output_path}/${id}/${visit}/stx_nlin/${id}_${visit}_inv_nlin_0_inverse_NL.xfm >> ${output_path}/${id}/to_segment_t1.csv 
 fi
-if [ ! -f ${path_t2_stx} ] && [ -f ${t2} ];then 
+if [ ! -f ${path_t2_stx} ] && [ -f ${t2} ] && [ ${tp} = 1 ];then
     echo "Stx registration of T2w images"
     xfmconcat ${output_path}/${id}/${visit}/native/${id}_${visit}_t2_to_t1.xfm ${output_path}/${id}/${visit}/stx_lin/${id}_${visit}_t1_to_icbm.xfm  \
     ${output_path}/${id}/${visit}/stx_lin/${id}_${visit}_t2_to_icbm_stx2.xfm -clobber
@@ -280,7 +280,7 @@ if [ ! -f ${path_t2_stx} ] && [ -f ${t2} ];then
     --target_mask ${model_path}/Mask.mnc --clobber
 fi
 
-if [ ! -f ${path_pd_stx} ] && [ -f ${pd} ];then 
+if [ ! -f ${path_pd_stx} ] && [ -f ${pd} ] && [ ${tp} = 1 ];then
     echo "Stx registration of PD images"
     xfmconcat ${output_path}/${id}/${visit}/native/${id}_${visit}_pd_to_t1.xfm ${output_path}/${id}/${visit}/stx_lin/${id}_${visit}_t1_to_icbm.xfm  \
     ${output_path}/${id}/${visit}/stx_lin/${id}_${visit}_pd_to_icbm_stx2.xfm -clobber
@@ -291,7 +291,7 @@ if [ ! -f ${path_pd_stx} ] && [ -f ${pd} ];then
     --target_mask ${model_path}/Mask.mnc --clobber
 fi
 
-if [ ! -f ${path_flr_stx} ] && [ -f ${flr} ];then 
+if [ ! -f ${path_flr_stx} ] && [ -f ${flr} ] && [ ${tp} = 1 ];then
     echo "Stx registration of FLAIR images"
     xfmconcat ${output_path}/${id}/${visit}/native/${id}_${visit}_flr_to_t1.xfm ${output_path}/${id}/${visit}/stx_lin/${id}_${visit}_t1_to_icbm.xfm  \
     ${output_path}/${id}/${visit}/stx_lin/${id}_${visit}_flr_to_icbm_stx2.xfm -clobber
@@ -329,8 +329,7 @@ if [ ${tp} -gt 1 ];then
             --like ${model_path}/Av_T1.mnc --transform ${output_path}/${id}/template/${id}_baseline_to_icbm_stx_ants.xfm --order 4 --clobber
 
             mincbeast ${model_path}/ADNI_library ${output_path}/${id}/template/${id}_${visit_tp}_0.mnc \
-            ${output_path}/${id}/template/${id}_${visit_tp}_0_beast_mask.mnc -fill -median -same_resolution -configuration \
-            ${model_path}/ADNI_library/default.2mm.conf -clobber
+            ${output_path}/${id}/template/${id}_${visit_tp}_0_beast_mask.mnc -fill -median -same_resolution -configuration ${model_path}/ADNI_library/default.2mm.conf -clobber
 
             itk_resample ${output_path}/${id}/template/${id}_${visit_tp}_0_beast_mask.mnc ${output_path}/${id}/template/${id}_${visit_tp}_0_beast_mask_native.mnc \
             --like ${output_path}/${id}/${visit_tp}/native/${id}_${visit_tp}_t1_vp.mnc --transform ${output_path}/${id}/template/${id}_baseline_to_icbm_stx_ants.xfm --order  --clobber --invert_transform --label
