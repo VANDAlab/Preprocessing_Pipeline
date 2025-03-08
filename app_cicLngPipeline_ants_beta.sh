@@ -576,7 +576,7 @@ if [ ${tp} -gt 1 ];then
 fi
 ### Running BISON for tissue classification ###
 if [ ${tp} -gt 1 ];then 
-    rm ${output_path}/${id}/to_segment_*.csv
+    if [ -f ${output_path}/${id}/to_segment_t1.csv ];then rm ${output_path}/${id}/to_segment_*.csv;fi
     echo Subjects,T1s,Masks,XFMs >> ${output_path}/${id}/to_segment_t1.csv
     echo Subjects,T1s,T2s,Masks,XFMs >> ${output_path}/${id}/to_segment_t1_t2.csv
     echo Subjects,T1s,FLAIRs,Masks,XFMs >> ${output_path}/${id}/to_segment_t1_flair.csv
