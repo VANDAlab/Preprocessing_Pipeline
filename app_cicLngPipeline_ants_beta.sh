@@ -703,10 +703,13 @@ rm ${output_path}/${id}/*/*/*tmp.mnc
 rm ${output_path}/${id}/*/native/*anlm*
 rm ${output_path}/${id}/*/native/*n3*
 rm ${output_path}/${id}/*/cls/*Prob_Label*
+rm ${output_path}/${id}/*/cls/*l.mnc
 rm ${output_path}/${id}/*/stx_nlin/*0_NL*
 rm ${output_path}/${id}/*/stx_nlin/*secondary_template_3*
 rm ${output_path}/${id}/*/stx_nlin/*three*
 rm ${output_path}/${id}/template/*0_NL*
+rm ${output_path}/${id}/template/*0.mnc
+rm ${output_path}/${id}/template/*0_beast*.mnc
 rm ${output_path}/${id}/*.csv
 rm ${output_path}/${id}/*.xfm
 
