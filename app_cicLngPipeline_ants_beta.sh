@@ -116,6 +116,9 @@ for i in $(cat ${input_list});do
     
     if [ ! -f ${path_t2_vp} ] && [ ! -z ${t2} ];then 
         echo "Pre-processing T2w images"
+        if [ ! -f ${output_path}/${id}/${visit}/stx_lin/${id}_${visit}_t1_to_icbm_stx_tmp.xfm ];then
+            cp ${output_path}/${id}/${visit}/stx_lin/${id}_${visit}_t1_to_icbm_stx_tmp.xfm ${output_path}/${id}/${visit}/stx_lin/${id}_${visit}_t1_to_icbm_stx.xfm
+        fi
         minc_anlm --mt ${ITK_GLOBAL_DEFAULT_NUMBER_OF_THREADS} --beta 0.7 --clobber ${t2} ${output_path}/${id}/${visit}/native/${id}_${visit}_t2_anlm.mnc
         antsRegistration_affine_SyN.sh --clobber --skip-nonlinear --linear-type lsq6 --close  ${t2} ${t1} ${output_path}/${id}/tmp
         xfminvert -clobber ${output_path}/${id}/tmp0_GenericAffine.xfm ${output_path}/${id}/${visit}/native/${id}_${visit}_t2_to_t1.xfm
@@ -137,6 +140,9 @@ for i in $(cat ${input_list});do
 
     if [ ! -f ${path_pd_vp} ] && [ ! -z ${pd} ];then 
         echo "Pre-processing PDw images"
+        if [ ! -f ${output_path}/${id}/${visit}/stx_lin/${id}_${visit}_t1_to_icbm_stx_tmp.xfm ];then
+            cp ${output_path}/${id}/${visit}/stx_lin/${id}_${visit}_t1_to_icbm_stx_tmp.xfm ${output_path}/${id}/${visit}/stx_lin/${id}_${visit}_t1_to_icbm_stx.xfm
+        fi
         minc_anlm --mt ${ITK_GLOBAL_DEFAULT_NUMBER_OF_THREADS} --beta 0.7 --clobber ${pd} ${output_path}/${id}/${visit}/native/${id}_${visit}_pd_anlm.mnc
         antsRegistration_affine_SyN.sh --clobber --skip-nonlinear --linear-type lsq6 --close ${pd} ${t1} ${output_path}/${id}/tmp
         xfminvert -clobber ${output_path}/${id}/tmp0_GenericAffine.xfm ${output_path}/${id}/${visit}/native/${id}_${visit}_pd_to_t1.xfm
@@ -158,6 +164,9 @@ for i in $(cat ${input_list});do
 
     if [ ! -f ${path_flr_vp} ] && [ ! -z ${flr} ];then 
         echo "Pre-processing FLAIR images"
+        if [ ! -f ${output_path}/${id}/${visit}/stx_lin/${id}_${visit}_t1_to_icbm_stx_tmp.xfm ];then
+            cp ${output_path}/${id}/${visit}/stx_lin/${id}_${visit}_t1_to_icbm_stx_tmp.xfm ${output_path}/${id}/${visit}/stx_lin/${id}_${visit}_t1_to_icbm_stx.xfm
+        fi
         minc_anlm --mt ${ITK_GLOBAL_DEFAULT_NUMBER_OF_THREADS} --beta 0.7 --clobber ${flr} ${output_path}/${id}/${visit}/native/${id}_${visit}_flr_anlm.mnc
         antsRegistration_affine_SyN.sh --clobber --skip-nonlinear --linear-type lsq6 --close ${flr} ${t1} ${output_path}/${id}/tmp
         xfminvert -clobber ${output_path}/${id}/tmp0_GenericAffine.xfm ${output_path}/${id}/${visit}/native/${id}_${visit}_flr_to_t1.xfm
@@ -264,48 +273,48 @@ if [ ! -f ${path_t1_stx} ] && [ ${tp} = 1 ];then
     echo ${id}_${visit}_t1,${output_path}/${id}/${visit}/stx_lin/${id}_${visit}_t1_stx2_lin.mnc,\
     ${output_path}/${id}/${visit}/stx_lin/${id}_${visit}_t1_stx2_beast_mask.mnc,\
     ${output_path}/${id}/${visit}/stx_nlin/${id}_${visit}_inv_nlin_0_inverse_NL.xfm >> ${output_path}/${id}/to_segment_t1.csv 
-fi
-if [ ! -f ${path_t2_stx} ] && [ -f ${t2} ] && [ ${tp} = 1 ];then
-    echo "Stx registration of T2w images"
-    xfmconcat ${output_path}/${id}/${visit}/native/${id}_${visit}_t2_to_t1.xfm ${output_path}/${id}/${visit}/stx_lin/${id}_${visit}_t1_to_icbm.xfm  \
-    ${output_path}/${id}/${visit}/stx_lin/${id}_${visit}_t2_to_icbm_stx2.xfm -clobber
-    itk_resample ${output_path}/${id}/${visit}/native/${id}_${visit}_t2_vp.mnc ${output_path}/${id}/${visit}/stx_lin/${id}_${visit}_t2_stx2_lin.mnc \
-    --like ${model_path}/Av_T2.mnc --transform ${output_path}/${id}/${visit}/stx_lin/${id}_${visit}_t2_to_icbm_stx2.xfm --order 4 --clobber
-    ### Generating List for BISON Segmentation ###
-    echo ${id}_${visit}_t1_t2,${output_path}/${id}/${visit}/stx_lin/${id}_${visit}_t1_stx2_lin.mnc,\
-    ${output_path}/${id}/${visit}/stx_lin/${id}_${visit}_t2_stx2_lin.mnc,${output_path}/${id}/${visit}/stx_lin/${id}_${visit}_t1_stx2_beast_mask.mnc,\
-    ${output_path}/${id}/${visit}/stx_nlin/${id}_${visit}_inv_nlin_0_inverse_NL.xfm >> ${output_path}/${id}/to_segment_t1_t2.csv
-    volume_pol ${output_path}/${id}/${visit}/stx_lin/${id}_${visit}_t2_stx2_lin.mnc ${model_path}/Av_T2.mnc --order 1 --noclamp \
-    --expfile ${output_path}/${id}/tmp/tmp ${output_path}/${id}/${visit}/stx_lin/${id}_${visit}_t2_stx2_lin_vp.mnc  --source_mask ${output_path}/${id}/${visit}/stx_lin/${id}_${visit}_t1_stx2_beast_mask.mnc \
-    --target_mask ${model_path}/Mask.mnc --clobber
-fi
 
-if [ ! -f ${path_pd_stx} ] && [ -f ${pd} ] && [ ${tp} = 1 ];then
-    echo "Stx registration of PD images"
-    xfmconcat ${output_path}/${id}/${visit}/native/${id}_${visit}_pd_to_t1.xfm ${output_path}/${id}/${visit}/stx_lin/${id}_${visit}_t1_to_icbm.xfm  \
-    ${output_path}/${id}/${visit}/stx_lin/${id}_${visit}_pd_to_icbm_stx2.xfm -clobber
-    itk_resample ${output_path}/${id}/${visit}/native/${id}_${visit}_pd_vp.mnc ${output_path}/${id}/${visit}/stx_lin/${id}_${visit}_pd_stx2_lin.mnc \
-    --like ${model_path}/Av_PD.mnc --transform ${output_path}/${id}/${visit}/stx_lin/${id}_${visit}_pd_to_icbm_stx2.xfm --order 4 --clobber
-    volume_pol ${output_path}/${id}/${visit}/stx_lin/${id}_${visit}_pd_stx2_lin.mnc ${model_path}/Av_PD.mnc --order 1 --noclamp \
-    --expfile ${output_path}/${id}/tmp/tmp ${output_path}/${id}/${visit}/stx_lin/${id}_${visit}_pd_stx2_lin_vp.mnc  --source_mask ${output_path}/${id}/${visit}/stx_lin/${id}_${visit}_t1_stx2_beast_mask.mnc \
-    --target_mask ${model_path}/Mask.mnc --clobber
-fi
+    if [ ! -f ${path_t2_stx} ] && [ -f ${t2} ] && [ ${tp} = 1 ];then
+        echo "Stx registration of T2w images"
+        xfmconcat ${output_path}/${id}/${visit}/native/${id}_${visit}_t2_to_t1.xfm ${output_path}/${id}/${visit}/stx_lin/${id}_${visit}_t1_to_icbm.xfm  \
+        ${output_path}/${id}/${visit}/stx_lin/${id}_${visit}_t2_to_icbm_stx2.xfm -clobber
+        itk_resample ${output_path}/${id}/${visit}/native/${id}_${visit}_t2_vp.mnc ${output_path}/${id}/${visit}/stx_lin/${id}_${visit}_t2_stx2_lin.mnc \
+        --like ${model_path}/Av_T2.mnc --transform ${output_path}/${id}/${visit}/stx_lin/${id}_${visit}_t2_to_icbm_stx2.xfm --order 4 --clobber
+        ### Generating List for BISON Segmentation ###
+        echo ${id}_${visit}_t1_t2,${output_path}/${id}/${visit}/stx_lin/${id}_${visit}_t1_stx2_lin.mnc,\
+        ${output_path}/${id}/${visit}/stx_lin/${id}_${visit}_t2_stx2_lin.mnc,${output_path}/${id}/${visit}/stx_lin/${id}_${visit}_t1_stx2_beast_mask.mnc,\
+        ${output_path}/${id}/${visit}/stx_nlin/${id}_${visit}_inv_nlin_0_inverse_NL.xfm >> ${output_path}/${id}/to_segment_t1_t2.csv
+        volume_pol ${output_path}/${id}/${visit}/stx_lin/${id}_${visit}_t2_stx2_lin.mnc ${model_path}/Av_T2.mnc --order 1 --noclamp \
+        --expfile ${output_path}/${id}/tmp/tmp ${output_path}/${id}/${visit}/stx_lin/${id}_${visit}_t2_stx2_lin_vp.mnc  --source_mask ${output_path}/${id}/${visit}/stx_lin/${id}_${visit}_t1_stx2_beast_mask.mnc \
+        --target_mask ${model_path}/Mask.mnc --clobber
+    fi
 
-if [ ! -f ${path_flr_stx} ] && [ -f ${flr} ] && [ ${tp} = 1 ];then
-    echo "Stx registration of FLAIR images"
-    xfmconcat ${output_path}/${id}/${visit}/native/${id}_${visit}_flr_to_t1.xfm ${output_path}/${id}/${visit}/stx_lin/${id}_${visit}_t1_to_icbm.xfm  \
-    ${output_path}/${id}/${visit}/stx_lin/${id}_${visit}_flr_to_icbm_stx2.xfm -clobber
-    itk_resample ${output_path}/${id}/${visit}/native/${id}_${visit}_flr_vp.mnc ${output_path}/${id}/${visit}/stx_lin/${id}_${visit}_flr_stx2_lin.mnc \
-    --like ${model_path}/Av_FLAIR.mnc --transform ${output_path}/${id}/${visit}/stx_lin/${id}_${visit}_flr_to_icbm_stx2.xfm --order 4 --clobber
-    ### Generating List for BISON Segmentation ###
-    echo ${id}_${visit}_t1_flair,${output_path}/${id}/${visit}/stx_lin/${id}_${visit}_t1_stx2_lin.mnc,\
-    ${output_path}/${id}/${visit}/stx_lin/${id}_${visit}_flr_stx2_lin.mnc,${output_path}/${id}/${visit}/stx_lin/${id}_${visit}_t1_stx2_beast_mask.mnc,\
-    ${output_path}/${id}/${visit}/stx_nlin/${id}_${visit}_inv_nlin_0_inverse_NL.xfm >> ${output_path}/${id}/to_segment_t1_flair.csv
-    volume_pol ${output_path}/${id}/${visit}/stx_lin/${id}_${visit}_flr_stx2_lin.mnc ${model_path}/Av_FLAIR.mnc --order 1 --noclamp \
-    --expfile ${output_path}/${id}/tmp/tmp ${output_path}/${id}/${visit}/stx_lin/${id}_${visit}_flr_stx2_lin_vp.mnc  --source_mask ${output_path}/${id}/${visit}/stx_lin/${id}_${visit}_t1_stx2_beast_mask.mnc \
-    --target_mask ${model_path}/Mask.mnc --clobber
-fi
+    if [ ! -f ${path_pd_stx} ] && [ -f ${pd} ] && [ ${tp} = 1 ];then
+        echo "Stx registration of PD images"
+        xfmconcat ${output_path}/${id}/${visit}/native/${id}_${visit}_pd_to_t1.xfm ${output_path}/${id}/${visit}/stx_lin/${id}_${visit}_t1_to_icbm.xfm  \
+        ${output_path}/${id}/${visit}/stx_lin/${id}_${visit}_pd_to_icbm_stx2.xfm -clobber
+        itk_resample ${output_path}/${id}/${visit}/native/${id}_${visit}_pd_vp.mnc ${output_path}/${id}/${visit}/stx_lin/${id}_${visit}_pd_stx2_lin.mnc \
+        --like ${model_path}/Av_PD.mnc --transform ${output_path}/${id}/${visit}/stx_lin/${id}_${visit}_pd_to_icbm_stx2.xfm --order 4 --clobber
+        volume_pol ${output_path}/${id}/${visit}/stx_lin/${id}_${visit}_pd_stx2_lin.mnc ${model_path}/Av_PD.mnc --order 1 --noclamp \
+        --expfile ${output_path}/${id}/tmp/tmp ${output_path}/${id}/${visit}/stx_lin/${id}_${visit}_pd_stx2_lin_vp.mnc  --source_mask ${output_path}/${id}/${visit}/stx_lin/${id}_${visit}_t1_stx2_beast_mask.mnc \
+        --target_mask ${model_path}/Mask.mnc --clobber
+    fi
 
+    if [ ! -f ${path_flr_stx} ] && [ -f ${flr} ] && [ ${tp} = 1 ];then
+        echo "Stx registration of FLAIR images"
+        xfmconcat ${output_path}/${id}/${visit}/native/${id}_${visit}_flr_to_t1.xfm ${output_path}/${id}/${visit}/stx_lin/${id}_${visit}_t1_to_icbm.xfm  \
+        ${output_path}/${id}/${visit}/stx_lin/${id}_${visit}_flr_to_icbm_stx2.xfm -clobber
+        itk_resample ${output_path}/${id}/${visit}/native/${id}_${visit}_flr_vp.mnc ${output_path}/${id}/${visit}/stx_lin/${id}_${visit}_flr_stx2_lin.mnc \
+        --like ${model_path}/Av_FLAIR.mnc --transform ${output_path}/${id}/${visit}/stx_lin/${id}_${visit}_flr_to_icbm_stx2.xfm --order 4 --clobber
+        ### Generating List for BISON Segmentation ###
+        echo ${id}_${visit}_t1_flair,${output_path}/${id}/${visit}/stx_lin/${id}_${visit}_t1_stx2_lin.mnc,\
+        ${output_path}/${id}/${visit}/stx_lin/${id}_${visit}_flr_stx2_lin.mnc,${output_path}/${id}/${visit}/stx_lin/${id}_${visit}_t1_stx2_beast_mask.mnc,\
+        ${output_path}/${id}/${visit}/stx_nlin/${id}_${visit}_inv_nlin_0_inverse_NL.xfm >> ${output_path}/${id}/to_segment_t1_flair.csv
+        volume_pol ${output_path}/${id}/${visit}/stx_lin/${id}_${visit}_flr_stx2_lin.mnc ${model_path}/Av_FLAIR.mnc --order 1 --noclamp \
+        --expfile ${output_path}/${id}/tmp/tmp ${output_path}/${id}/${visit}/stx_lin/${id}_${visit}_flr_stx2_lin_vp.mnc  --source_mask ${output_path}/${id}/${visit}/stx_lin/${id}_${visit}_t1_stx2_beast_mask.mnc \
+        --target_mask ${model_path}/Mask.mnc --clobber
+    fi
+fi
 tp=$(cat ${input_list}|wc -l)
 ### for longitudinal data: initial rigid registration of timepoints ###
 if [ ${tp} -gt 1 ];then
