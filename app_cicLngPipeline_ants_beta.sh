@@ -117,7 +117,7 @@ for i in $(cat ${input_list});do
     if [ ! -f ${path_t2_vp} ] && [ ! -z ${t2} ];then 
         echo "Pre-processing T2w images"
         if [ ! -f ${output_path}/${id}/${visit}/stx_lin/${id}_${visit}_t1_to_icbm_stx_tmp.xfm ];then
-            cp ${output_path}/${id}/${visit}/stx_lin/${id}_${visit}_t1_to_icbm_stx_tmp.xfm ${output_path}/${id}/${visit}/stx_lin/${id}_${visit}_t1_to_icbm_stx.xfm
+            cp ${output_path}/${id}/${visit}/stx_lin/${id}_${visit}_to_icbm.xfm ${output_path}/${id}/${visit}/stx_lin/${id}_${visit}_t1_to_icbm_stx_tmp.xfm
         fi
         minc_anlm --mt ${ITK_GLOBAL_DEFAULT_NUMBER_OF_THREADS} --beta 0.7 --clobber ${t2} ${output_path}/${id}/${visit}/native/${id}_${visit}_t2_anlm.mnc
         antsRegistration_affine_SyN.sh --clobber --skip-nonlinear --linear-type lsq6 --close  ${t2} ${t1} ${output_path}/${id}/tmp
@@ -141,7 +141,7 @@ for i in $(cat ${input_list});do
     if [ ! -f ${path_pd_vp} ] && [ ! -z ${pd} ];then 
         echo "Pre-processing PDw images"
         if [ ! -f ${output_path}/${id}/${visit}/stx_lin/${id}_${visit}_t1_to_icbm_stx_tmp.xfm ];then
-            cp ${output_path}/${id}/${visit}/stx_lin/${id}_${visit}_t1_to_icbm_stx_tmp.xfm ${output_path}/${id}/${visit}/stx_lin/${id}_${visit}_t1_to_icbm_stx.xfm
+            cp ${output_path}/${id}/${visit}/stx_lin/${id}_${visit}_to_icbm.xfm ${output_path}/${id}/${visit}/stx_lin/${id}_${visit}_t1_to_icbm_stx_tmp.xfm
         fi
         minc_anlm --mt ${ITK_GLOBAL_DEFAULT_NUMBER_OF_THREADS} --beta 0.7 --clobber ${pd} ${output_path}/${id}/${visit}/native/${id}_${visit}_pd_anlm.mnc
         antsRegistration_affine_SyN.sh --clobber --skip-nonlinear --linear-type lsq6 --close ${pd} ${t1} ${output_path}/${id}/tmp
@@ -165,7 +165,7 @@ for i in $(cat ${input_list});do
     if [ ! -f ${path_flr_vp} ] && [ ! -z ${flr} ];then 
         echo "Pre-processing FLAIR images"
         if [ ! -f ${output_path}/${id}/${visit}/stx_lin/${id}_${visit}_t1_to_icbm_stx_tmp.xfm ];then
-            cp ${output_path}/${id}/${visit}/stx_lin/${id}_${visit}_t1_to_icbm_stx_tmp.xfm ${output_path}/${id}/${visit}/stx_lin/${id}_${visit}_t1_to_icbm_stx.xfm
+            cp ${output_path}/${id}/${visit}/stx_lin/${id}_${visit}_to_icbm.xfm ${output_path}/${id}/${visit}/stx_lin/${id}_${visit}_t1_to_icbm_stx_tmp.xfm
         fi
         minc_anlm --mt ${ITK_GLOBAL_DEFAULT_NUMBER_OF_THREADS} --beta 0.7 --clobber ${flr} ${output_path}/${id}/${visit}/native/${id}_${visit}_flr_anlm.mnc
         antsRegistration_affine_SyN.sh --clobber --skip-nonlinear --linear-type lsq6 --close ${flr} ${t1} ${output_path}/${id}/tmp
