@@ -260,11 +260,11 @@ if [ ! -f ${path_t1_stx} ] && [ ${tp} = 1 ];then
         ### repeating DBM with seconday template as intermediate step
         xfmconcat ${secondary_template_path}/to_icbm_sym_0_inverse_NL.xfm ${output_path}/${id}/${visit}/stx_nlin/${id}_${visit}_secondary_template_inv_nlin_0_inverse_NL.xfm \
             ${output_path}/${id}/${visit}/stx_nlin/${id}_${visit}_secondary_template_three_inverse_NL.xfm -clobber
-        xfm_normalize.pl ${output_path}/${id}/${visit}/stx_nlin/${id}_${visit}_secondary_template_three_inverse_NL.xfm ${output_path}/${id}/${visit}/stx_nlin/${id}_${visit}_secondary_template_3_inv_nlin_0_NL.xfm \
+        xfm_normalize.pl ${output_path}/${id}/${visit}/stx_nlin/${id}_${visit}_secondary_template_three_inverse_NL.xfm ${output_path}/${id}/${visit}/stx_nlin/${id}_${visit}_secondary_template_3_inv_nlin_0_inverse_NL.xfm \
         --like ${secondary_template_path}/Av_T1.mnc --exact --clobber
         itk_resample ${output_path}/${id}/${visit}/stx_lin/${id}_${visit}_t1_stx2_lin_vp.mnc ${output_path}/${id}/${visit}/stx_nlin/${id}_${visit}_secondary_template_3_nlin.mnc \
-            --like ${model_path}/Av_T1.mnc --transform ${output_path}/${id}/${visit}/stx_nlin/${id}_${visit}_secondary_template_3_inv_nlin_0_NL.xfm --order 4 --clobber --invert_transform
-        grid_proc --det ${output_path}/${id}/${visit}/stx_nlin/${id}_${visit}_secondary_template_3_inv_nlin_0_NL_grid_0.mnc ${output_path}/${id}/${visit}/vbm/${id}_${visit}_indirect_dbm.mnc
+            --like ${model_path}/Av_T1.mnc --transform ${output_path}/${id}/${visit}/stx_nlin/${id}_${visit}_secondary_template_3_inv_nlin_0_inverse_NL.xfm --order 4 --clobber --invert_transform
+        grid_proc --det ${output_path}/${id}/${visit}/stx_nlin/${id}_${visit}_secondary_template_3_inv_nlin_0_inverse_NL_grid_0.mnc ${output_path}/${id}/${visit}/vbm/${id}_${visit}_indirect_dbm.mnc
     fi
     ### Generating input lists for BISON segmentation
     echo Subjects,T1s,Masks,XFMs >> ${output_path}/${id}/to_segment_t1.csv
@@ -528,11 +528,11 @@ if [ ${tp} -gt 1 ];then
         if [ ! -f ${path_dbm} ];then
             xfmconcat ${output_path}/${id}/template/${id}_nlin_av_to_ref_nl_ants_0_inverse_NL.xfm ${output_path}/${id}/template/${id}_${visit_tp}_nl_ants_0_inverse_NL.xfm \
                 ${output_path}/${id}/${visit_tp}/stx_nlin/${id}_${visit_tp}_both_inverse_NL.xfm -clobber
-            xfm_normalize.pl ${output_path}/${id}/${visit_tp}/stx_nlin/${id}_${visit_tp}_both_inverse_NL.xfm ${output_path}/${id}/${visit_tp}/stx_nlin/${id}_${visit_tp}_inv_nlin_0_NL.xfm \
+            xfm_normalize.pl ${output_path}/${id}/${visit_tp}/stx_nlin/${id}_${visit_tp}_both_inverse_NL.xfm ${output_path}/${id}/${visit_tp}/stx_nlin/${id}_${visit_tp}_inv_nlin_0_inverse_NL.xfm \
             --like ${model_path}/Av_T1.mnc --exact --clobber
             itk_resample ${output_path}/${id}/${visit_tp}/stx_lin/${id}_${visit_tp}_t1_stx2_lin_vp.mnc ${output_path}/${id}/${visit_tp}/stx_nlin/${id}_${visit_tp}_nlin.mnc \
-                --like ${model_path}/Av_T1.mnc --transform ${output_path}/${id}/${visit_tp}/stx_nlin/${id}_${visit_tp}_inv_nlin_0_NL.xfm --order 4 --clobber --invert_transform
-            grid_proc --det ${output_path}/${id}/${visit_tp}/stx_nlin/${id}_${visit_tp}_inv_nlin_0_NL_grid_0.mnc ${output_path}/${id}/${visit_tp}/vbm/${id}_${visit_tp}_dbm.mnc
+                --like ${model_path}/Av_T1.mnc --transform ${output_path}/${id}/${visit_tp}/stx_nlin/${id}_${visit_tp}_inv_nlin_0_inverse_NL.xfm --order 4 --clobber --invert_transform
+            grid_proc --det ${output_path}/${id}/${visit_tp}/stx_nlin/${id}_${visit_tp}_inv_nlin_0_inverse_NL_grid_0.mnc ${output_path}/${id}/${visit_tp}/vbm/${id}_${visit_tp}_dbm.mnc
         fi       
     done
 
@@ -563,21 +563,21 @@ if [ ${tp} -gt 1 ];then
                 if [ ! -f ${path_secondary_template_dbm} ];then
                     xfmconcat ${output_path}/${id}/template/${id}_secondary_template_nlin_av_to_ref_nl_ants_0_inverse_NL.xfm ${output_path}/${id}/template/${id}_${visit_tp}_nl_ants_0_inverse_NL.xfm \
                         ${output_path}/${id}/${visit_tp}/stx_nlin/${id}_${visit_tp}_secondary_template_both_inverse_NL.xfm -clobber
-                    xfm_normalize.pl ${output_path}/${id}/${visit_tp}/stx_nlin/${id}_${visit_tp}_secondary_template_both_inverse_NL.xfm ${output_path}/${id}/${visit_tp}/stx_nlin/${id}_${visit_tp}_secondary_template_inv_nlin_0_NL.xfm \
+                    xfm_normalize.pl ${output_path}/${id}/${visit_tp}/stx_nlin/${id}_${visit_tp}_secondary_template_both_inverse_NL.xfm ${output_path}/${id}/${visit_tp}/stx_nlin/${id}_${visit_tp}_secondary_template_inv_nlin_0_inverse_NL.xfm \
                     --like ${secondary_template_path}/Av_T1.mnc --exact --clobber
                     itk_resample ${output_path}/${id}/${visit_tp}/stx_lin/${id}_${visit_tp}_t1_stx2_lin_vp.mnc ${output_path}/${id}/${visit_tp}/stx_nlin/${id}_${visit_tp}_secondary_template_nlin.mnc \
-                        --like ${secondary_template_path}/Av_T1.mnc --transform ${output_path}/${id}/${visit_tp}/stx_nlin/${id}_${visit_tp}_secondary_template_inv_nlin_0_NL.xfm --order 4 --clobber --invert_transform
-                    grid_proc --det ${output_path}/${id}/${visit_tp}/stx_nlin/${id}_${visit_tp}_secondary_template_inv_nlin_0_NL_grid_0.mnc ${output_path}/${id}/${visit_tp}/vbm/${id}_${visit_tp}_secondary_template_dbm.mnc
+                        --like ${secondary_template_path}/Av_T1.mnc --transform ${output_path}/${id}/${visit_tp}/stx_nlin/${id}_${visit_tp}_secondary_template_inv_nlin_0_inverse_NL.xfm --order 4 --clobber --invert_transform
+                    grid_proc --det ${output_path}/${id}/${visit_tp}/stx_nlin/${id}_${visit_tp}_secondary_template_inv_nlin_0_inverse_NL_grid_0.mnc ${output_path}/${id}/${visit_tp}/vbm/${id}_${visit_tp}_secondary_template_dbm.mnc
                 fi
                 ### repeating DBM with seconday template as intermediate step
                 if [ ! -f ${path_indirect_dbm} ];then
                     xfmconcat ${secondary_template_path}/to_icbm_sym_0_inverse_NL.xfm ${output_path}/${id}/template/${id}_secondary_template_nlin_av_to_ref_nl_ants_0_inverse_NL.xfm ${output_path}/${id}/template/${id}_${visit_tp}_nl_ants_0_inverse_NL.xfm \
                         ${output_path}/${id}/${visit_tp}/stx_nlin/${id}_${visit_tp}_secondary_template_three_inverse_NL.xfm -clobber
-                    xfm_normalize.pl ${output_path}/${id}/${visit_tp}/stx_nlin/${id}_${visit_tp}_secondary_template_three_inverse_NL.xfm ${output_path}/${id}/${visit_tp}/stx_nlin/${id}_${visit_tp}_secondary_template_3_inv_nlin_0_NL.xfm \
+                    xfm_normalize.pl ${output_path}/${id}/${visit_tp}/stx_nlin/${id}_${visit_tp}_secondary_template_three_inverse_NL.xfm ${output_path}/${id}/${visit_tp}/stx_nlin/${id}_${visit_tp}_secondary_template_3_inv_nlin_0_inverse_NL.xfm \
                     --like ${secondary_template_path}/Av_T1.mnc --exact --clobber
                     itk_resample ${output_path}/${id}/${visit_tp}/stx_lin/${id}_${visit_tp}_t1_stx2_lin_vp.mnc ${output_path}/${id}/${visit_tp}/stx_nlin/${id}_${visit_tp}_secondary_template_3_nlin.mnc \
-                        --like ${model_path}/Av_T1.mnc --transform ${output_path}/${id}/${visit_tp}/stx_nlin/${id}_${visit_tp}_secondary_template_3_inv_nlin_0_NL.xfm --order 4 --clobber --invert_transform
-                    grid_proc --det ${output_path}/${id}/${visit_tp}/stx_nlin/${id}_${visit_tp}_secondary_template_3_inv_nlin_0_NL_grid_0.mnc ${output_path}/${id}/${visit_tp}/vbm/${id}_${visit_tp}_indirect_dbm.mnc
+                        --like ${model_path}/Av_T1.mnc --transform ${output_path}/${id}/${visit_tp}/stx_nlin/${id}_${visit_tp}_secondary_template_3_inv_nlin_0_inverse_NL.xfm --order 4 --clobber --invert_transform
+                    grid_proc --det ${output_path}/${id}/${visit_tp}/stx_nlin/${id}_${visit_tp}_secondary_template_3_inv_nlin_0_inverse_NL_grid_0.mnc ${output_path}/${id}/${visit_tp}/vbm/${id}_${visit_tp}_indirect_dbm.mnc
                 fi
             done
         fi
@@ -599,23 +599,27 @@ if [ ${tp} -gt 1 ];then
         path_t1_bison=$(echo ${output_path}/${id}/${visit_tp}/cls/RF0_${id}_${visit_tp}_t1_Labelr.mnc)
         path_t2_bison=$(echo ${output_path}/${id}/${visit_tp}/cls/RF0_${id}_${visit_tp}_t1_t2_Labelr.mnc)
         path_flr_bison=$(echo ${output_path}/${id}/${visit_tp}/cls/RF0_${id}_${visit_tp}_t1_flr_Labelr.mnc)
+        if [ ! -f ${output_path}/${id}/${visit_tp}/stx_nlin/${id}_${visit_tp}_inv_nlin_0_inverse_NL.xfm ];then
+            xfm_normalize.pl ${output_path}/${id}/${visit_tp}/stx_nlin/${id}_${visit_tp}_both_inverse_NL.xfm ${output_path}/${id}/${visit_tp}/stx_nlin/${id}_${visit_tp}_inv_nlin_0_inverse_NL.xfm \
+            --like ${model_path}/Av_T1.mnc --exact --clobber
+        fi
 
         if [ ! -f ${path_t1_bison} ];then
             echo ${id}_${visit_tp}_t1,${output_path}/${id}/${visit_tp}/stx_lin/${id}_${visit_tp}_t1_stx2_lin.mnc,\
             ${output_path}/${id}/${visit_tp}/stx_lin/${id}_${visit_tp}_t1_stx2_beast_mask.mnc,\
-            ${output_path}/${id}/${visit_tp}/stx_nlin/${id}_${visit_tp}_inv_nlin_0_NL.xfm >> ${output_path}/${id}/to_segment_t1.csv 
+            ${output_path}/${id}/${visit_tp}/stx_nlin/${id}_${visit_tp}_inv_nlin_0_inverse_NL.xfm >> ${output_path}/${id}/to_segment_t1.csv
         fi
 
         if [ ! -f ${path_t2_bison} ] && [ -f ${t2} ];then 
             echo ${id}_${visit_tp}_t1_t2,${output_path}/${id}/${visit_tp}/stx_lin/${id}_${visit_tp}_t1_stx2_lin.mnc,\
             ${output_path}/${id}/${visit_tp}/stx_lin/${id}_${visit_tp}_t2_stx2_lin.mnc,${output_path}/${id}/${visit_tp}/stx_lin/${id}_${visit_tp}_t1_stx2_beast_mask.mnc,\
-            ${output_path}/${id}/${visit_tp}/stx_nlin/${id}_${visit_tp}_inv_nlin_0_NL.xfm >> ${output_path}/${id}/to_segment_t1_t2.csv
+            ${output_path}/${id}/${visit_tp}/stx_nlin/${id}_${visit_tp}_inv_nlin_0_inverse_NL.xfm >> ${output_path}/${id}/to_segment_t1_t2.csv
         fi
         
         if [ ! -f ${path_flr_bison} ] && [ -f ${flr} ];then 
             echo ${id}_${visit_tp}_t1_flr,${output_path}/${id}/${visit_tp}/stx_lin/${id}_${visit_tp}_t1_stx2_lin.mnc,\
             ${output_path}/${id}/${visit_tp}/stx_lin/${id}_${visit_tp}_flr_stx2_lin.mnc,${output_path}/${id}/${visit_tp}/stx_lin/${id}_${visit_tp}_t1_stx2_beast_mask.mnc,\
-            ${output_path}/${id}/${visit_tp}/stx_nlin/${id}_${visit_tp}_inv_nlin_0_NL.xfm >> ${output_path}/${id}/to_segment_t1_flair.csv 
+            ${output_path}/${id}/${visit_tp}/stx_nlin/${id}_${visit_tp}_inv_nlin_0_inverse_NL.xfm >> ${output_path}/${id}/to_segment_t1_flair.csv
         fi
     done
 fi
@@ -652,9 +656,9 @@ for timepoint in $(seq 1 ${tp});do
         minccalc -expression 'A[0]+A[1]' ${output_path}/${id}/${visit_tp}/cls/RF0_${id}_${visit_tp}_t1_Prob_Label_8.mnc \
         ${output_path}/${id}/${visit_tp}/cls/RF0_${id}_${visit_tp}_t1_Prob_Label_9.mnc ${output_path}/${id}/${visit_tp}/cls/RF0_${id}_${visit_tp}_t1_Prob_WM.mnc -clobber
         itk_resample ${output_path}/${id}/${visit_tp}/cls/RF0_${id}_${visit_tp}_t1_Prob_GM.mnc ${output_path}/${id}/tmp/${id}_${visit_tp}_nl_prob_gm.mnc \
-        --like ${model_path}/Av_T1.mnc --transform ${output_path}/${id}/${visit_tp}/stx_nlin/${id}_${visit_tp}_inv_nlin_0_NL.xfm --order 4 --clobber --invert_transform
+        --like ${model_path}/Av_T1.mnc --transform ${output_path}/${id}/${visit_tp}/stx_nlin/${id}_${visit_tp}_inv_nlin_0_inverse_NL.xfm --order 4 --clobber --invert_transform
         itk_resample ${output_path}/${id}/${visit_tp}/cls/RF0_${id}_${visit_tp}_t1_Prob_WM.mnc ${output_path}/${id}/tmp/${id}_${visit_tp}_nl_prob_wm.mnc \
-        --like ${model_path}/Av_T1.mnc --transform ${output_path}/${id}/${visit_tp}/stx_nlin/${id}_${visit_tp}_inv_nlin_0_NL.xfm --order 4 --clobber --invert_transform
+        --like ${model_path}/Av_T1.mnc --transform ${output_path}/${id}/${visit_tp}/stx_nlin/${id}_${visit_tp}_inv_nlin_0_inverse_NL.xfm --order 4 --clobber --invert_transform
         minccalc -expression 'A[0]>0.5?A[0]:0' ${output_path}/${id}/tmp/${id}_${visit_tp}_nl_prob_gm.mnc ${output_path}/${id}/tmp/${id}_${visit_tp}_nl_prob_gmt.mnc -clobber
         minccalc -expression 'A[0]>0.5?A[0]:0' ${output_path}/${id}/tmp/${id}_${visit_tp}_nl_prob_wm.mnc ${output_path}/${id}/tmp/${id}_${visit_tp}_nl_prob_wmt.mnc -clobber
         minccalc -expression 'A[0]*A[1]' ${output_path}/${id}/tmp/${id}_${visit_tp}_nl_prob_gmt.mnc ${output_path}/${id}/${visit_tp}/vbm/${id}_${visit_tp}_dbm.mnc \
