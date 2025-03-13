@@ -319,12 +319,12 @@ tp=$(cat ${input_list}|wc -l)
 ### for longitudinal data: initial rigid registration of timepoints ###
 if [ ${tp} -gt 1 ];then
     echo "longitudinal data: initial rigid registration"
-    path_lin_av=$(echo ${output_path}/${id}/template/${id}_lin_av.mnc)  
+    path_nlin_av=$(echo ${output_path}/${id}/template/${id}_nlin_av.mnc)
     for timepoint in $(seq 1 ${tp});do
         tmp=$(cat ${input_list} | head -${timepoint} | tail -1)
         id=$(echo ${tmp}|cut -d , -f 1)
         visit_tp=$(echo ${tmp}|cut -d , -f 2)
-        if [ ! -f ${path_lin_av} ] && [ ${timepoint} = 1 ];then
+        if [ ! -f ${path_nlin_av} ] && [ ${timepoint} = 1 ];then
             antsRegistration_affine_SyN.sh --clobber --skip-nonlinear \
                 --fixed-mask ${model_path}/Mask.mnc \
                 ${output_path}/${id}/${visit_tp}/native/${id}_${visit_tp}_t1_vp.mnc \
@@ -354,7 +354,7 @@ if [ ${tp} -gt 1 ];then
             itk_resample ${output_path}/${id}/${visit_tp}/native/${id}_${visit_tp}_t1_vp.mnc ${output_path}/${id}/template/${id}_${visit_tp}_0.mnc \
             --like ${model_path}/Av_T1.mnc --transform ${output_path}/${id}/template/${id}_baseline_to_icbm_stx.xfm --order 4 --clobber
         fi
-        if [ ! -f ${path_lin_av} ] && [ ${timepoint} -gt 1 ];then
+        if [ ! -f ${path_nlin_av} ] && [ ${timepoint} -gt 1 ];then
             antsRegistration_affine_SyN.sh --clobber --skip-nonlinear  --linear-type lsq6 \
                 ${output_path}/${id}/${visit_tp}/native/${id}_${visit_tp}_t1_vp.mnc \
                 ${output_path}/${id}/template/${id}_baseline.mnc \
@@ -367,12 +367,12 @@ if [ ${tp} -gt 1 ];then
             --like ${model_path}/Av_T1.mnc --transform ${output_path}/${id}/template/${id}_${visit_tp}_to_icbm.xfm --order 4 --clobber
         fi
     done
-    if [ ! -f ${path_lin_av} ];then mincaverage ${output_path}/${id}/template/${id}_*_0.mnc ${output_path}/${id}/template/${id}_lin_av.mnc -clobber;fi
+    if [ ! -f ${path_nlin_av} ];then mincaverage ${output_path}/${id}/template/${id}_*_0.mnc ${output_path}/${id}/template/${id}_lin_av.mnc -clobber;fi
 fi
 tp=$(cat ${input_list}|wc -l)
 ### for longitudinal data: linear average template ###
 if [ ${tp} -gt 1 ];then
-    if [ ! -f ${path_lin_av} ];then 
+    if [ ! -f ${path_nlin_av} ];then
         echo "longitudinal data: linear average template"
         for iteration in {1..5};do
             for timepoint in $(seq 1 ${tp});do
