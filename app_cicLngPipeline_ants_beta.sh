@@ -627,28 +627,33 @@ fi
 echo "BISON"
 
 t1f=$(cat ${output_path}/${id}/to_segment_t1.csv|wc -l)
-if [ ${t1f} -gt 1 ];then
-    python ${model_path}/BISON.py -c RF0 -m ${model_path}/Pretrained_Library_ADNI_L9/ \
-    -o  ${output_path}/${id}/tmp/ -t ${output_path}/${id}/tmp/ -e PT -n  ${output_path}/${id}/to_segment_t1.csv  -p  ${model_path}/Pretrained_Library_ADNI_L9/ -l 9
-    mv ${output_path}/${id}/tmp/RF0_*${id}*${visit_tp}*.mnc ${output_path}/${id}/${visit_tp}/cls/
-    mv ${output_path}/${id}/tmp/*${id}*${visit_tp}*.jpg ${output_path}/${id}/qc/
-fi
+if [ ${t1f} -gt 1 ];then  python ${model_path}/BISON.py -c RF0 -m ${model_path}/Pretrained_Library_ADNI_L9/ \
+ -o  ${output_path}/${id}/tmp/ -t ${output_path}/${id}/tmp/ -e PT -n  ${output_path}/${id}/to_segment_t1.csv  -p  ${model_path}/Pretrained_Library_ADNI_L9/ -l 9;fi
 
 t2f=$(cat ${output_path}/${id}/to_segment_t1_t2.csv|wc -l)
-if [ ${t2f} -gt 1 ];then
-    python ${model_path}/BISON.py -c RF0 -m ${model_path}/Pretrained_Library_ADNI_T1_T2_L9/ \
-    -o  ${output_path}/${id}/tmp/ -t ${output_path}/${id}/tmp/ -e PT -n  ${output_path}/${id}/to_segment_t1_t2.csv  -p  ${model_path}/Pretrained_Library_ADNI_T1_T2_L9/ -l 9
-    mv ${output_path}/${id}/tmp/RF0_*${id}*${visit_tp}*.mnc ${output_path}/${id}/${visit_tp}/cls/
-    mv ${output_path}/${id}/tmp/*${id}*${visit_tp}*.jpg ${output_path}/${id}/qc/
-fi
+if [ ${t2f} -gt 1 ];then  python ${model_path}/BISON.py -c RF0 -m ${model_path}/Pretrained_Library_ADNI_T1_T2_L9/ \
+ -o  ${output_path}/${id}/tmp/ -t ${output_path}/${id}/tmp/ -e PT -n  ${output_path}/${id}/to_segment_t1_t2.csv  -p  ${model_path}/Pretrained_Library_ADNI_T1_T2_L9/ -l 9; fi
 
 flairf=$(cat ${output_path}/${id}/to_segment_t1_flair.csv|wc -l)
-if [ ${flairf} -gt 1 ];then
-    python ${model_path}/BISON.py -c RF0 -m ${model_path}/Pretrained_Library_ADNI_T1_FLAIR_L9/ \
-    -o  ${output_path}/${id}/tmp/ -t ${output_path}/${id}/tmp/ -e PT -n  ${output_path}/${id}/to_segment_t1_flair.csv  -p  ${model_path}/Pretrained_Library_ADNI_T1_FLAIR_L9/ -l 9
-    mv ${output_path}/${id}/tmp/RF0_*${id}*${visit_tp}*.mnc ${output_path}/${id}/${visit_tp}/cls/
-    mv ${output_path}/${id}/tmp/*${id}*${visit_tp}*.jpg ${output_path}/${id}/qc/
-fi
+if [ ${flairf} -gt 1 ];then  python ${model_path}/BISON.py -c RF0 -m ${model_path}/Pretrained_Library_ADNI_T1_FLAIR_L9/ \
+ -o  ${output_path}/${id}/tmp/ -t ${output_path}/${id}/tmp/ -e PT -n  ${output_path}/${id}/to_segment_t1_flair.csv  -p  ${model_path}/Pretrained_Library_ADNI_T1_FLAIR_L9/ -l 9; fi
+
+### Moving Files ###
+echo "BISON Done!"
+
+for timepoint in $(seq 1 ${tp});do
+    tmp=$(cat ${input_list} | head -${timepoint} | tail -1)
+    id=$(echo ${tmp}|cut -d , -f 1)
+    visit_tp=$(echo ${tmp}|cut -d , -f 2)
+
+    if ls ${output_path}/${id}/tmp/*${id}*${visit_tp}*.mnc 1> /dev/null 2>&1; then
+        mv ${output_path}/${id}/tmp/*${id}*${visit_tp}*.mnc ${output_path}/${id}/${visit_tp}/cls/
+    fi
+
+    if ls ${output_path}/${id}/tmp/*${id}*${visit_tp}*.jpg 1> /dev/null 2>&1; then
+        mv ${output_path}/${id}/tmp/*${id}*${visit_tp}*.jpg ${output_path}/${id}/qc/
+    fi
+done
 
 ### Voxel-Based Mprphometry (VBM) ###
 echo "Voxel-Based Mprphometry"
@@ -657,8 +662,11 @@ for timepoint in $(seq 1 ${tp});do
     tmp=$(cat ${input_list} | head -${timepoint} | tail -1)
     id=$(echo ${tmp}|cut -d , -f 1)
     visit_tp=$(echo ${tmp}|cut -d , -f 2)
+
     path_vbm=$(echo ${output_path}/${id}/${visit_tp}/vbm/${id}_${visit_tp}_vbm_gm.mnc)
     if [ ! -f ${path_vbm} ];then 
+        mv ${output_path}/${id}/tmp/*${id}*${visit_tp}*.mnc ${output_path}/${id}/${visit_tp}/cls/
+        mv ${output_path}/${id}/tmp/*${id}*${visit_tp}*.jpg ${output_path}/${id}/qc/
         minccalc -expression 'A[0]+A[1]+A[2]' ${output_path}/${id}/${visit_tp}/cls/RF0_${id}_${visit_tp}_t1_Prob_Label_3.mnc \
         ${output_path}/${id}/${visit_tp}/cls/RF0_${id}_${visit_tp}_t1_Prob_Label_6.mnc ${output_path}/${id}/${visit_tp}/cls/RF0_${id}_${visit_tp}_t1_Prob_Label_7.mnc \
         ${output_path}/${id}/${visit_tp}/cls/RF0_${id}_${visit_tp}_t1_Prob_GM.mnc -clobber
@@ -719,20 +727,30 @@ for timepoint in $(seq 1 ${tp});do
 done
 
 ### removing unnecessary intermediate files ###
-rm -rf ${output_path}/${id}/tmp/
-rm ${output_path}/${id}/*/*/*tmp.xfm
-rm ${output_path}/${id}/*/*/*tmp.mnc
-rm ${output_path}/${id}/*/native/*anlm*
-rm ${output_path}/${id}/*/native/*n3*
-rm ${output_path}/${id}/*/cls/*Prob_Label*
-rm ${output_path}/${id}/*/cls/*l.mnc
-rm ${output_path}/${id}/*/stx_nlin/*0_NL*
-rm ${output_path}/${id}/*/stx_nlin/*secondary_template_3*
-rm ${output_path}/${id}/*/stx_nlin/*three*
-rm ${output_path}/${id}/template/*0_NL*
-rm ${output_path}/${id}/template/*0.mnc
-rm ${output_path}/${id}/template/*0_beast*.mnc
-rm ${output_path}/${id}/*.csv
-rm ${output_path}/${id}/*.xfm
+if [ -d "${output_path}/${id}/tmp/" ]; then
+    rm -rf "${output_path}/${id}/tmp/"
+fi
+
+for file in \
+    "${output_path}/${id}/*/*/*tmp.xfm" \
+    "${output_path}/${id}/*/*/*tmp.mnc" \
+    "${output_path}/${id}/*/native/*anlm*" \
+    "${output_path}/${id}/*/native/*n3*" \
+    "${output_path}/${id}/*/cls/*Prob_Label*" \
+    "${output_path}/${id}/*/cls/*l.mnc" \
+    "${output_path}/${id}/*/stx_nlin/*0_NL*" \
+    "${output_path}/${id}/*/stx_nlin/*secondary_template_3*" \
+    "${output_path}/${id}/*/stx_nlin/*three*" \
+    "${output_path}/${id}/template/*0_NL*" \
+    "${output_path}/${id}/template/*0.mnc" \
+    "${output_path}/${id}/template/*0_beast*.mnc" \
+    "${output_path}/${id}/*.csv" \
+    "${output_path}/${id}/*.xfm"
+do
+    if ls $file 1> /dev/null 2>&1; then
+        rm $file
+    fi
+done
+
 
 
