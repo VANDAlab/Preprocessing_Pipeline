@@ -341,7 +341,7 @@ if [ ${tp} -gt 1 ];then
             ${output_path}/${id}/template/${id}_${visit_tp}_0_beast_mask.mnc -fill -median -same_resolution -configuration ${model_path}/ADNI_library/default.2mm.conf -clobber
 
             itk_resample ${output_path}/${id}/template/${id}_${visit_tp}_0_beast_mask.mnc ${output_path}/${id}/template/${id}_${visit_tp}_0_beast_mask_native.mnc \
-            --like ${output_path}/${id}/${visit_tp}/native/${id}_${visit_tp}_t1_vp.mnc --transform ${output_path}/${id}/template/${id}_baseline_to_icbm_stx_ants.xfm --order  --clobber --invert_transform --label
+            --like ${output_path}/${id}/${visit_tp}/native/${id}_${visit_tp}_t1_vp.mnc --transform ${output_path}/${id}/template/${id}_baseline_to_icbm_stx_ants.xfm --order 4  --clobber --invert_transform --label
 
             antsRegistration_affine_SyN.sh --clobber --skip-nonlinear \
                 --fixed-mask ${model_path}/Mask.mnc \
