@@ -689,6 +689,8 @@ for timepoint in $(seq 1 ${tp});do
     fi
 done
 
+echo "Generating QC Files"
+
 ### generating QC files ###
 for timepoint in $(seq 1 ${tp});do
     tmp=$(cat ${input_list} | head -${timepoint} | tail -1)
@@ -725,6 +727,7 @@ for timepoint in $(seq 1 ${tp});do
         fi
     fi
 done
+echo "Removing Redundant/Temporary Files"
 
 ### removing unnecessary intermediate files ###
 if [ -d "${output_path}/${id}/tmp/" ]; then
@@ -752,5 +755,6 @@ do
     fi
 done
 
+echo "Processing Successfully Finished!"
 
 
