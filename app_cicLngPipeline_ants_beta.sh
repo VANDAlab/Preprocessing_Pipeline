@@ -362,9 +362,9 @@ if [ ${tp} -gt 1 ];then
             xfminvert -clobber ${output_path}/${id}/tmp0_GenericAffine.xfm ${output_path}/${id}/template/${id}_${visit_tp}_to_baseline.xfm
 
             xfmconcat ${output_path}/${id}/template/${id}_${visit_tp}_to_baseline.xfm  ${output_path}/${id}/template/${id}_baseline_to_icbm_stx.xfm \
-            ${output_path}/${id}/template/${id}_${visit_tp}_to_icbm.xfm -clobber
+            ${output_path}/${id}/template/${id}_${visit_tp}_t1_to_icbm.xfm -clobber
             itk_resample ${output_path}/${id}/${visit_tp}/native/${id}_${visit_tp}_t1_vp.mnc ${output_path}/${id}/template/${id}_${visit_tp}_0.mnc \
-            --like ${model_path}/Av_T1.mnc --transform ${output_path}/${id}/template/${id}_${visit_tp}_to_icbm.xfm --order 4 --clobber
+            --like ${model_path}/Av_T1.mnc --transform ${output_path}/${id}/template/${id}_${visit_tp}_t1_to_icbm.xfm --order 4 --clobber
         fi
     done
     if [ ! -f ${path_nlin_av} ];then mincaverage ${output_path}/${id}/template/${id}_*_0.mnc ${output_path}/${id}/template/${id}_lin_av.mnc -clobber;fi
@@ -386,9 +386,9 @@ if [ ${tp} -gt 1 ];then
                 xfminvert -clobber ${output_path}/${id}/tmp0_GenericAffine.xfm ${output_path}/${id}/template/${id}_${visit_tp}.xfm
 
                 xfmconcat ${output_path}/${id}/template/${id}_${visit_tp}_to_baseline.xfm  ${output_path}/${id}/template/${id}_baseline_to_icbm_stx.xfm \
-                ${output_path}/${id}/template/${id}_${visit_tp}.xfm ${output_path}/${id}/template/${id}_${visit_tp}_to_icbm.xfm -clobber
+                ${output_path}/${id}/template/${id}_${visit_tp}.xfm ${output_path}/${id}/template/${id}_${visit_tp}_t1_to_icbm.xfm -clobber
                 itk_resample ${output_path}/${id}/${visit_tp}/native/${id}_${visit_tp}_t1_vp.mnc ${output_path}/${id}/template/${id}_${visit_tp}_0.mnc \
-                --like ${model_path}/Av_T1.mnc --transform ${output_path}/${id}/template/${id}_${visit_tp}_to_icbm.xfm --order 4 --clobber
+                --like ${model_path}/Av_T1.mnc --transform ${output_path}/${id}/template/${id}_${visit_tp}_t1_to_icbm.xfm --order 4 --clobber
             done
             mincaverage ${output_path}/${id}/template/${id}_*_0.mnc ${output_path}/${id}/template/${id}_lin_av.mnc -clobber
         done
@@ -415,8 +415,8 @@ if [ ${tp} -gt 1 ];then
 
         if [ ! -f ${path_t1_stx} ]; then
             itk_resample ${output_path}/${id}/${visit_tp}/native/${id}_${visit_tp}_t1_vp.mnc ${output_path}/${id}/${visit_tp}/stx_lin/${id}_${visit_tp}_t1_stx2_lin.mnc \
-            --like ${model_path}/Av_T1.mnc --transform ${output_path}/${id}/template/${id}_${visit_tp}_to_icbm.xfm --order 4 --clobber
-            cp ${output_path}/${id}/template/${id}_${visit_tp}_to_icbm.xfm ${output_path}/${id}/${visit_tp}/stx_lin/
+            --like ${model_path}/Av_T1.mnc --transform ${output_path}/${id}/template/${id}_${visit_tp}_t1_to_icbm.xfm --order 4 --clobber
+            cp ${output_path}/${id}/template/${id}_${visit_tp}*_to_icbm.xfm ${output_path}/${id}/${visit_tp}/stx_lin/
             ### BEaST brain mask + another round of intensity normalization with the BEaST mask### 
             mincbeast ${model_path}/ADNI_library ${output_path}/${id}/${visit_tp}/stx_lin/${id}_${visit_tp}_t1_stx2_lin.mnc \
             ${output_path}/${id}/${visit_tp}/stx_lin/${id}_${visit_tp}_t1_stx2_beast_mask.mnc -fill -median -same_resolution -configuration \
@@ -427,7 +427,7 @@ if [ ${tp} -gt 1 ];then
         fi
         
         if [ ! -f ${path_t2_stx} ] && [ -f ${t2} ];then 
-            xfmconcat ${output_path}/${id}/${visit_tp}/native/${id}_${visit_tp}_t2_to_t1.xfm ${output_path}/${id}/template/${id}_${visit_tp}_to_icbm.xfm \
+            xfmconcat ${output_path}/${id}/${visit_tp}/native/${id}_${visit_tp}_t2_to_t1.xfm ${output_path}/${id}/template/${id}_${visit_tp}_t1_to_icbm.xfm \
             ${output_path}/${id}/${visit_tp}/stx_lin/${id}_${visit_tp}_t2_to_icbm_stx.xfm -clobber
             itk_resample ${output_path}/${id}/${visit_tp}/native/${id}_${visit_tp}_t2_vp.mnc ${output_path}/${id}/${visit_tp}/stx_lin/${id}_${visit_tp}_t2_stx2_lin.mnc \
             --like ${model_path}/Av_T2.mnc --transform ${output_path}/${id}/${visit_tp}/stx_lin/${id}_${visit_tp}_t2_to_icbm_stx.xfm --order 4 --clobber
@@ -436,7 +436,7 @@ if [ ${tp} -gt 1 ];then
         fi
 
         if [ ! -f ${path_pd_stx} ] && [ -f ${pd} ];then 
-            xfmconcat ${output_path}/${id}/${visit_tp}/native/${id}_${visit_tp}_pd_to_t1.xfm ${output_path}/${id}/template/${id}_${visit_tp}_to_icbm.xfm  \
+            xfmconcat ${output_path}/${id}/${visit_tp}/native/${id}_${visit_tp}_pd_to_t1.xfm ${output_path}/${id}/template/${id}_${visit_tp}_t1_to_icbm.xfm  \
             ${output_path}/${id}/${visit_tp}/stx_lin/${id}_${visit_tp}_pd_to_icbm_stx.xfm -clobber
             itk_resample ${output_path}/${id}/${visit_tp}/native/${id}_${visit_tp}_pd_vp.mnc ${output_path}/${id}/${visit_tp}/stx_lin/${id}_${visit_tp}_pd_stx2_lin.mnc \
             --like ${model_path}/Av_PD.mnc --transform ${output_path}/${id}/${visit_tp}/stx_lin/${id}_${visit_tp}_pd_to_icbm_stx.xfm --order 4 --clobber
@@ -445,7 +445,7 @@ if [ ${tp} -gt 1 ];then
         fi
 
         if [ ! -f ${path_flr_stx} ] && [ -f ${flr} ];then  
-            xfmconcat ${output_path}/${id}/${visit_tp}/native/${id}_${visit_tp}_flr_to_t1.xfm ${output_path}/${id}/template/${id}_${visit_tp}_to_icbm.xfm \
+            xfmconcat ${output_path}/${id}/${visit_tp}/native/${id}_${visit_tp}_flr_to_t1.xfm ${output_path}/${id}/template/${id}_${visit_tp}_t1_to_icbm.xfm \
             ${output_path}/${id}/${visit_tp}/stx_lin/${id}_${visit_tp}_flr_to_icbm_stx.xfm -clobber
             itk_resample ${output_path}/${id}/${visit_tp}/native/${id}_${visit_tp}_flr_vp.mnc ${output_path}/${id}/${visit_tp}/stx_lin/${id}_${visit_tp}_flr_stx2_lin.mnc \
             --like ${model_path}/Av_FLAIR.mnc --transform ${output_path}/${id}/${visit_tp}/stx_lin/${id}_${visit_tp}_flr_to_icbm_stx.xfm --order 4 --clobber
