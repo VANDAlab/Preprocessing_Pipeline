@@ -416,7 +416,7 @@ if [ ${tp} -gt 1 ];then
         if [ ! -f ${path_t1_stx} ]; then
             itk_resample ${output_path}/${id}/${visit_tp}/native/${id}_${visit_tp}_t1_vp.mnc ${output_path}/${id}/${visit_tp}/stx_lin/${id}_${visit_tp}_t1_stx2_lin.mnc \
             --like ${model_path}/Av_T1.mnc --transform ${output_path}/${id}/template/${id}_${visit_tp}_t1_to_icbm.xfm --order 4 --clobber
-            cp ${output_path}/${id}/template/${id}_${visit_tp}*_to_icbm.xfm ${output_path}/${id}/${visit_tp}/stx_lin/
+            cp ${output_path}/${id}/template/${id}_${visit_tp}_t1_to_icbm.xfm ${output_path}/${id}/${visit_tp}/stx_lin/
             ### BEaST brain mask + another round of intensity normalization with the BEaST mask### 
             mincbeast ${model_path}/ADNI_library ${output_path}/${id}/${visit_tp}/stx_lin/${id}_${visit_tp}_t1_stx2_lin.mnc \
             ${output_path}/${id}/${visit_tp}/stx_lin/${id}_${visit_tp}_t1_stx2_beast_mask.mnc -fill -median -same_resolution -configuration \
