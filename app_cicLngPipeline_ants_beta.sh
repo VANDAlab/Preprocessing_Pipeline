@@ -4,7 +4,7 @@ set -euo pipefail
 
 export ITK_GLOBAL_DEFAULT_NUMBER_OF_THREADS=10
 
-### Mahsa & Yashar - 2023-03-08  ###
+### Mahsa Dadar & Yashar Zeighami - 2025-03-08  ###
 #Input file format:
 # id,visit,t1,t2,pd,flr
 # Dependencies: minc-toolki, anaconda, and ANTs
@@ -536,7 +536,7 @@ if [ ${tp} -gt 1 ];then
         fi       
     done
 
-    if [ ! -f ${secondary_template_path}/Av_T1.mnc ];then
+    if [ -f ${secondary_template_path}/Av_T1.mnc ];then
         path_nlin_av_sec_reg=$(echo ${output_path}/${id}/template/${id}_secondary_template_nlin_av_to_icbm.mnc) 
         if [ ! -f ${path_nlin_av_sec_reg} ];then
             src=${output_path}/${id}/template/${id}_nlin_av.mnc
