@@ -309,7 +309,7 @@ ${output_path}/${id}/${visit}/stx_nlin/${id}_${visit}_inv_nlin_0_inverse_NL.xfm 
         itk_resample ${output_path}/${id}/${visit}/native/${id}_${visit}_flr_vp.mnc ${output_path}/${id}/${visit}/stx_lin/${id}_${visit}_flr_stx2_lin.mnc \
         --like ${model_path}/Av_FLAIR.mnc --transform ${output_path}/${id}/${visit}/stx_lin/${id}_${visit}_flr_to_icbm_stx2.xfm --order 4 --clobber
         ### Generating List for BISON Segmentation ###
-        echo ${id}_${visit}_t1_flair,${output_path}/${id}/${visit}/stx_lin/${id}_${visit}_t1_stx2_lin.mnc,\
+        echo ${id}_${visit}_t1_flr,${output_path}/${id}/${visit}/stx_lin/${id}_${visit}_t1_stx2_lin.mnc,\
         ${output_path}/${id}/${visit}/stx_lin/${id}_${visit}_flr_stx2_lin.mnc,${output_path}/${id}/${visit}/stx_lin/${id}_${visit}_t1_stx2_beast_mask.mnc,\
         ${output_path}/${id}/${visit}/stx_nlin/${id}_${visit}_inv_nlin_0_inverse_NL.xfm >> ${output_path}/${id}/to_segment_t1_flair.csv
         volume_pol ${output_path}/${id}/${visit}/stx_lin/${id}_${visit}_flr_stx2_lin.mnc ${model_path}/Av_FLAIR.mnc --order 1 --noclamp \
