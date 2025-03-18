@@ -239,7 +239,7 @@ if [ ! -f ${path_t1_stx} ] && [ ${tp} = 1 ];then
             --like ${model_path}/Av_T1.mnc --transform ${output_path}/${id}/${visit}/stx_nlin/${id}_${visit}_inv_nlin_0_inverse_NL.xfm --order 4 --clobber --invert_transform
     grid_proc --det ${output_path}/${id}/${visit}/stx_nlin/${id}_${visit}_inv_nlin_0_inverse_NL_grid_0.mnc ${output_path}/${id}/${visit}/vbm/${id}_${visit}_dbm.mnc --clobber
     
-    if [ ! -f ${secondary_template_path}/Av_T1.mnc ];then
+    if [ -f ${secondary_template_path}/Av_T1.mnc ];then
         echo "Nonlinear registration to indirect template"
         src=${output_path}/${id}/${visit}/stx_lin/${id}_${visit}_t1_stx2_lin_vp.mnc
         trg=${secondary_template_path}/Av_T1.mnc
@@ -266,13 +266,15 @@ if [ ! -f ${path_t1_stx} ] && [ ${tp} = 1 ];then
             --like ${model_path}/Av_T1.mnc --transform ${output_path}/${id}/${visit}/stx_nlin/${id}_${visit}_secondary_template_3_inv_nlin_0_inverse_NL.xfm --order 4 --clobber --invert_transform
         grid_proc --det ${output_path}/${id}/${visit}/stx_nlin/${id}_${visit}_secondary_template_3_inv_nlin_0_inverse_NL_grid_0.mnc ${output_path}/${id}/${visit}/vbm/${id}_${visit}_indirect_dbm.mnc
     fi
-    ### Generating input lists for BISON segmentation
-    echo Subjects,T1s,Masks,XFMs >> ${output_path}/${id}/to_segment_t1.csv
-    echo Subjects,T1s,FLAIRs,Masks,XFMs >> ${output_path}/${id}/to_segment_t1_flair.csv
-    echo Subjects,T1s,T2s,Masks,XFMs >> ${output_path}/${id}/to_segment_t1_t2.csv
-    echo ${id}_${visit}_t1,${output_path}/${id}/${visit}/stx_lin/${id}_${visit}_t1_stx2_lin.mnc,\
-    ${output_path}/${id}/${visit}/stx_lin/${id}_${visit}_t1_stx2_beast_mask.mnc,\
-    ${output_path}/${id}/${visit}/stx_nlin/${id}_${visit}_inv_nlin_0_inverse_NL.xfm >> ${output_path}/${id}/to_segment_t1.csv 
+fi
+
+### Generating input lists for BISON segmentation
+echo Subjects,T1s,Masks,XFMs >> ${output_path}/${id}/to_segment_t1.csv
+echo Subjects,T1s,FLAIRs,Masks,XFMs >> ${output_path}/${id}/to_segment_t1_flair.csv
+echo Subjects,T1s,T2s,Masks,XFMs >> ${output_path}/${id}/to_segment_t1_t2.csv
+echo ${id}_${visit}_t1,${output_path}/${id}/${visit}/stx_lin/${id}_${visit}_t1_stx2_lin.mnc,\
+${output_path}/${id}/${visit}/stx_lin/${id}_${visit}_t1_stx2_beast_mask.mnc,\
+${output_path}/${id}/${visit}/stx_nlin/${id}_${visit}_inv_nlin_0_inverse_NL.xfm >> ${output_path}/${id}/to_segment_t1.csv 
 
     if [ ! -f ${path_t2_stx} ] && [ -f ${t2} ] && [ ${tp} = 1 ];then
         echo "Stx registration of T2w images"
@@ -314,7 +316,7 @@ if [ ! -f ${path_t1_stx} ] && [ ${tp} = 1 ];then
         --expfile ${output_path}/${id}/tmp/tmp ${output_path}/${id}/${visit}/stx_lin/${id}_${visit}_flr_stx2_lin_vp.mnc  --source_mask ${output_path}/${id}/${visit}/stx_lin/${id}_${visit}_t1_stx2_beast_mask.mnc \
         --target_mask ${model_path}/Mask.mnc --clobber
     fi
-fi
+    
 tp=$(cat ${input_list}|wc -l)
 ### for longitudinal data: initial rigid registration of timepoints ###
 if [ ${tp} -gt 1 ];then
