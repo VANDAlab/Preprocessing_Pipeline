@@ -264,7 +264,7 @@ if [ ! -f ${path_t1_stx} ] && [ ${tp} = 1 ];then
         --like ${secondary_template_path}/Av_T1.mnc --exact --clobber
         itk_resample ${output_path}/${id}/${visit}/stx_lin/${id}_${visit}_t1_stx2_lin_vp.mnc ${output_path}/${id}/${visit}/stx_nlin/${id}_${visit}_secondary_template_3_nlin.mnc \
             --like ${model_path}/Av_T1.mnc --transform ${output_path}/${id}/${visit}/stx_nlin/${id}_${visit}_secondary_template_3_inv_nlin_0_inverse_NL.xfm --order 4 --clobber --invert_transform
-        grid_proc --det ${output_path}/${id}/${visit}/stx_nlin/${id}_${visit}_secondary_template_3_inv_nlin_0_inverse_NL_grid_0.mnc ${output_path}/${id}/${visit}/vbm/${id}_${visit}_indirect_dbm.mnc
+        grid_proc --det ${output_path}/${id}/${visit}/stx_nlin/${id}_${visit}_secondary_template_3_inv_nlin_0_inverse_NL_grid_0.mnc ${output_path}/${id}/${visit}/vbm/${id}_${visit}_indirect_dbm.mnc --clobber
     fi
 fi
 
@@ -534,7 +534,7 @@ if [ ${tp} -gt 1 ];then
             --like ${model_path}/Av_T1.mnc --exact --clobber
             itk_resample ${output_path}/${id}/${visit_tp}/stx_lin/${id}_${visit_tp}_t1_stx2_lin_vp.mnc ${output_path}/${id}/${visit_tp}/stx_nlin/${id}_${visit_tp}_nlin.mnc \
                 --like ${model_path}/Av_T1.mnc --transform ${output_path}/${id}/${visit_tp}/stx_nlin/${id}_${visit_tp}_inv_nlin_0_inverse_NL.xfm --order 4 --clobber --invert_transform
-            grid_proc --det ${output_path}/${id}/${visit_tp}/stx_nlin/${id}_${visit_tp}_inv_nlin_0_inverse_NL_grid_0.mnc ${output_path}/${id}/${visit_tp}/vbm/${id}_${visit_tp}_dbm.mnc
+            grid_proc --det ${output_path}/${id}/${visit_tp}/stx_nlin/${id}_${visit_tp}_inv_nlin_0_inverse_NL_grid_0.mnc ${output_path}/${id}/${visit_tp}/vbm/${id}_${visit_tp}_dbm.mnc --clobber
         fi       
     done
 
@@ -560,7 +560,7 @@ if [ ${tp} -gt 1 ];then
             for timepoint in $(seq 1 ${tp});do
                 tmp=$(cat ${input_list} | head -${timepoint} | tail -1)
                 visit_tp=$(echo ${tmp}|cut -d , -f 2)
-                path_secondary_template_dbm=$(echo ${id}_${visit_tp}_secondary_template_dbm.mnc)
+                path_secondary_template_dbm=$(echo ${output_path}/${id}/${visit_tp}/vbm/${id}_${visit_tp}_secondary_template_dbm.mnc)
                 path_indirect_dbm=$(echo ${output_path}/${id}/${visit_tp}/vbm/${id}_${visit_tp}_indirect_dbm.mnc)
                 if [ ! -f ${path_secondary_template_dbm} ];then
                     xfmconcat ${output_path}/${id}/template/${id}_secondary_template_nlin_av_to_ref_nl_ants_0_inverse_NL.xfm ${output_path}/${id}/template/${id}_${visit_tp}_nl_ants_0_inverse_NL.xfm \
@@ -579,7 +579,7 @@ if [ ${tp} -gt 1 ];then
                     --like ${secondary_template_path}/Av_T1.mnc --exact --clobber
                     itk_resample ${output_path}/${id}/${visit_tp}/stx_lin/${id}_${visit_tp}_t1_stx2_lin_vp.mnc ${output_path}/${id}/${visit_tp}/stx_nlin/${id}_${visit_tp}_secondary_template_3_nlin.mnc \
                         --like ${model_path}/Av_T1.mnc --transform ${output_path}/${id}/${visit_tp}/stx_nlin/${id}_${visit_tp}_secondary_template_3_inv_nlin_0_inverse_NL.xfm --order 4 --clobber --invert_transform
-                    grid_proc --det ${output_path}/${id}/${visit_tp}/stx_nlin/${id}_${visit_tp}_secondary_template_3_inv_nlin_0_inverse_NL_grid_0.mnc ${output_path}/${id}/${visit_tp}/vbm/${id}_${visit_tp}_indirect_dbm.mnc
+                    grid_proc --det ${output_path}/${id}/${visit_tp}/stx_nlin/${id}_${visit_tp}_secondary_template_3_inv_nlin_0_inverse_NL_grid_0.mnc ${output_path}/${id}/${visit_tp}/vbm/${id}_${visit_tp}_indirect_dbm.mnc --clobber
                 fi
             done
         fi
