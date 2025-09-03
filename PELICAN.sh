@@ -756,3 +756,9 @@ do
 done
 
 echo "Processing Successfully Finished!"
+
+### generating QC report HTML ###
+echo "Generating QC report HTML"d
+if [ -d "${output_path}/${id}/qc/" ]; then
+    generate_qc_report.sh "${output_path}/${id}"
+fi
