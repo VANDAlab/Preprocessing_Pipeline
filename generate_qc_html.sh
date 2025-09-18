@@ -4,10 +4,10 @@
 results_dir="$1"
 qc_dir=${results_dir}"/qc"
 
-# Extract subject ID from one of the filenames
-subject_id=$(basename "$results_dir" | grep -oP '(sub-\d+|\d+)')
+# Extract participant ID from one of the filenames
+participant_id=$(basename "$results_dir" | grep -oP '(sub-\d+|\d+)')
 
-output_html=${results_dir}/${subject_id}_QC_report.html
+output_html=${results_dir}/${participant_id}_QC_report.html
 
 # Find all session folders (e.g., ses-01, ses-02)
 #sessions=($(ls -d "$qc_dir"/ses-* 2>/dev/null | sort -V))
@@ -23,7 +23,7 @@ cat <<EOF > "$output_html"
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>QC Report for $subject_id</title>
+    <title>QC Report for $participant_id</title>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js" integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-rbsA2VBKQhggwzxH7pPCaAqO46MgnOM80zW1RWuH61DGLwZJEdK2Kadq2F9CUG65" crossorigin="anonymous">
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-kenU1KFdBIe4zVF0s0G1M5b4hcpxyD9F7jL+jjXkk+Q2h455rYXK/7HAuoJl+0I4" crossorigin="anonymous"></script>
@@ -46,9 +46,9 @@ cat <<EOF > "$output_html"
                 <li class="nav-item dropdown">
                     <a class="nav-link dropdown-toggle" id="navbarAbout" role="button" data-bs-toggle="dropdown" aria-expanded="false" href="#About">About</a>
                     <ul class="dropdown-menu">
-                        <li><a class="dropdown-item" href="#methods">Methods</a></li>
-                        <li><a class="dropdown-item" href="#references">References</a></li>
-                        <li><a class="dropdown-item" href="#citations">Citations</a></li>
+                        <li><a class="dropdown-item" href="#pelican">PELICAN</a></li>
+                        <li><a class="dropdown-item" href="#qc_protocols">QC Protocols</a></li>
+                        <li><a class="dropdown-item" href="#templates">Average templates</a></li>
                     </ul>
                 </li>
             </ul>
@@ -62,9 +62,9 @@ cat <<EOF > "$output_html"
 <div id="main-body">
     <div id="Summary" class="mt-5">
         <h1 class="sub-report-title common-padding">Summary</h1>
-        <div id="datatype-figures_desc-summary_subject-$subject_id" class="ps-3 pe-4 mb-2">
+        <div id="datatype-figures_desc-summary_participant-$participant_id" class="ps-3 pe-4 mb-2">
             <ul class="elem-desc">
-                <li>Subject ID: ${subject_id}</li>
+                <li>Participant ID: ${participant_id}</li>
                 <li>Number of Sessions: $num_sessions</li>
             </ul>
         </div>
@@ -76,28 +76,30 @@ EOF
 
 # Define descriptions for mandatory and optional images
 declare -A descriptions=(
+    ["t1_stx2_lin_vp"]="Linear registration"
     ["t1_mask"]="Brain mask"
-    ["t1_stx2_lin_vp"]="Linear registration of T1-weighted image"
-    ["stx2_nlin"]="Non-linear registration alignment"
-    ["t1_t1"]="T1 preprocessed image"
-    ["t1_Label"]="T1 image with BISON segmentation labels"
-    ["t1_t2"]="T2 preprocessed image"
-    ["t1_t2_Label"]="T2 image with BISON segmentation labels"
-    ["t1_flr_FLAIR"]="FLAIR preprocessed image"
-    ["t1_flr_Label"]="FLAIR image with BISON segmentation labels"
+    ["stx2_nlin"]="Nonlinear registration"
+    ["stx2_indirect_nlin"]="Indirect Nonlinear registration"
+    ["t1_t1"]="Preprocessed T1-weighted image"
+    ["t1_Label"]="T1-based BISON segmentation"
+    ["t1_flr_FLAIR"]="Preprocessed FLAIR image"
+    ["t1_flr_Label"]="FLAIR-based BISON segmentation"
+    ["t1_t2"]="Preprocessed T2-weighted image"
+    ["t1_t2_Label"]="T2-based BISON segmentation"
 )
 
 # Define captions for images (if any)
 declare -A captions=(
-    ["t1_mask"]="This is the brain mask used for analysis. Check ..."
-    ["t1_stx2_lin_vp"]="Linear registration of T1-weighted image."
-    ["stx2_nlin"]="Alignment using non-linear registration."
-    ["t1_t1"]="t1 preprocessed"
-    ["t1_Label"]="Segmentation labels on T1 image."
-    ["t1_t2"]="t2 preprocessed"
-    ["t1_t2_Label"]="Segmentation labels on T2 image."
-    ["t1_flr_FLAIR"]="FLAIR preprocessed"
-    ["t1_flr_Label"]="Segmentation labels on FLAIR image."
+    ["t1_stx2_lin_vp"]="The images show contours of the MNI-ICBM152 average template overlaid on the linearly registered T1w image. MNI-ICBM152 contours of the main sulci should align with the contours of the participant brain, but not necessarily the ventricles."
+    ["t1_mask"]="The following images show BEaST brain masks overlaid on preprocessed and linearly registered T1w images in the stereotaxic space. The masks should capture the entirety of the brain, but not include non-brain skull or dura. Note that brain masks are used in downstream DBM and VBM analyses, and BISON segmentations. "
+    ["stx2_nlin"]="The images show contours of the MNI-ICBM152 average template overlaid on the nonlinearly registered T1w image. MNI-ICBM152 contours of the main sulci should align well with the contours of the participant brain and ventricles."
+    ["stx2_indirect_nlin"]="The images show contours of the MNI-ICBM152 average template overlaid on the T1w image nonlinearly registered using an intermediate template. MNI-ICBM152 contours of the main sulci should align well with the contours of the participant brain and ventricles. "
+    ["t1_t1"]="Preprocessed T1w images (denoised, non-uniformity corrected, and intensity normalized) in the stereotaxic space. Images should be free of extensive noise, intensity inhomogeneity, and the brightness level should be consistent across different participants."
+    ["t1_Label"]="BISON segmentation labels based only on T1-weighted images in the stereotaxic space overlaid on the preprocessed T1-weighted image. "
+    ["t1_flr_FLAIR"]="Preprocessed FLAIR  images (denoised, non-uniformity corrected, and intensity normalized) in the stereotaxic space. Images should be free of extensive noise, intensity inhomogeneity, and the brightness level should be consistent across different participants."
+    ["t1_flr_Label"]="BISON segmentation labels based on FLAIR and T1-weighted images in the stereotaxic space overlaid on the preprocessed T1-weighted image. "
+    ["t1_t2"]="Preprocessed T2-weighted  images (denoised, non-uniformity corrected, and intensity normalized) in the stereotaxic space. Images should be free of extensive noise, intensity inhomogeneity, and the brightness level should be consistent across different participants."
+    ["t1_t2_Label"]="BISON segmentation labels based on FLAIR and T1-weighted images in the stereotaxic space overlaid on the preprocessed T1-weighted image. "
 )
 
 # Loop through each session
@@ -107,8 +109,7 @@ for session in "${sessions[@]}"; do
     echo "            <h2 class=\"sub-report-group common-margin\">Session: $session_name</h2>" >> "$output_html"
 
     # Add mandatory images first
-    #session_rel=$(realpath --relative-to="$(dirname "$output_html")" "$session")
-    for key in "t1_mask" "t1_stx2_lin_vp" "stx2_nlin" "t1_t1" "t1_Label" "t1_t2" "t1_t2_Label" "t1_flr_FLAIR" "t1_flr_Label"; do
+    for key in "t1_stx2_lin_vp" "t1_mask" "stx2_nlin" "stx2_indirect_nlin" "t1_t1" "t1_Label" "t1_flr_FLAIR" "t1_flr_Label" "t1_t2" "t1_t2_Label"; do
         img=$(find "$session" -type f -name "*${key}.jpg" | head -n 1)
         if [[ -f "$img" ]]; then
             img_rel=$(realpath --relative-to="$(dirname "$output_html")" "$img")
@@ -132,17 +133,23 @@ cat <<EOF >> "$output_html"
 
     <div id="About" class="mt-4">
         <h1 class="sub-report-title common-padding">About</h1>
-        <div id="methods">
-            <h2 class="sub-report-group common-margin">Methods</h2>
-            <p class="description common-margin"><b>We can copy some methods from the paper</b></p>
+        <div id="pelican">
+            <h2 class="sub-report-group common-margin">PELICAN</h2>
+            <p class="description common-margin">For more details on PELICAN pipeline, please refer to:<br>Dadar, Mahsa, et al. "PELICAN: a Longitudinal Image Processing Pipeline for Analyzing Structural Magnetic Resonance Images in Aging and Neurodegenerative Disease Populations." <i>medRxiv</i> (2025).</p>
         </div>
-        <div id="references">
-            <h2 class="sub-report-group common-margin">References</h2>
-            <p class="description common-margin"><b>We can add relevant lit</b></p>
+        <div id="qc_protocols">
+            <h2 class="sub-report-group common-margin">QC Protocols</h2>
+            <p class="description common-margin">For more information on quality control protocols, please refer to:<br><a href="https://www.sciencedirect.com/science/article/pii/S1053811918302350?via%3Dihub" target="_blank">Dadar, Mahsa, et al. "A comparison of publicly available linear MRI stereotaxic registration techniques." <i>Neuroimage</i> 174 (2018): 191-200.</a></p>
         </div>
-        <div id="citations">
-            <h2 class="sub-report-group common-margin">Citations</h2>
-            <p class="description common-margin">Don't forget to cite our <a href="https://www.w3schools.com/">paper</a></p>
+        <div id="templates">
+            <h2 class="sub-report-group common-margin">Average templates</h2>
+            <p class="description common-margin">For more details on average templates, please refer to:</p>
+            <ul class="common-margin">
+            <li><a href="https://www.nature.com/articles/s41597-021-01007-5" target="_blank">Dadar, Mahsa, et al. "MNI-FTD templates, unbiased average templates of frontotemporal dementia variants." <i>Scientific Data</i> 8.1 (2021): 222.</a></li>
+            <li><a href="https://www.nature.com/articles/s41597-022-01341-2" target="_blank">Dadar, Mahsa, Richard Camicioli, and Simon Duchesne. "Multi sequence average templates for aging and neurodegenerative disease populations." <i>Scientific Data</i> 9.1 (2022): 238.</a></li>
+            </ul>
+        </div>
+</p>
         </div>
     </div>
 </div>
