@@ -1,26 +1,23 @@
-Model path:
+Model path:  
 * will be uploaded to zenodo in future
 
-example 1: 
+example 1:  
 ./PELICAN.sh Participant_Inputs_File.csv /data/dadmah/tools/cicLngPipelineModels/ Outputs/
 
-example 2: 
+example 2:  
 ./PELICAN.sh Participant_Inputs_File.csv /data/dadmah/tools/cicLngPipelineModels/ Outputs/ Indirect_Template/
 
 
-Participant_Inputs_File.csv format:
+Participant_Inputs_File.csv format:  
 ParticipantID, ParticipantVisit, Path to T1w MRI,Path to T2w MRI, Path to PDw MRI, Path to FLAIR MRI 
 
-example 1: single visit with all 4 constrasts
-
+example 1: single visit with all 4 constrasts  
 Subject_1,Visit_1, Data/Subject_1_Visit_1_T1w.mnc,Data/Subject_1_Visit_1_T2w.mnc,Data/Subject_1_Visit_1_PDw.mnc,Data/Subject_1_Visit_1_FLAIR.mnc
 
-example 2: single visit with only T1w and FLAIR
-
+example 2: single visit with only T1w and FLAIR  
 Subject_1,Visit_1, Data/Subject_1_Visit_1_T1w.mnc,,,Data/Subject_1_Visit_1_FLAIR.mnc
 
-example 3: 4 visits, each with different combinations of contrasts 
-
+example 3: 4 visits, each with different combinations of contrasts  
 Subject_1,Visit_1, Data/Subject_1_Visit_1_T1w.mnc,Data/Subject_1_Visit_1_T2w.mnc,Data/Subject_1_Visit_1_PDw.mnc,Data/Subject_1_Visit_1_FLAIR.mnc
 Subject_1,Visit_2, Data/Subject_1_Visit_2_T1w.mnc,,,
 Subject_1,Visit_3, Data/Subject_1_Visit_3_T1w.mnc,Data/Subject_1_Visit_3_T2w.mnc,,Data/Subject_1_Visit_3_FLAIR.mnc
