@@ -1,14 +1,15 @@
-The general command to the pipeline is formatted as:  
+This page describes PELICAN pipeline, a longitudinal multi-contrast MRI processing pipeline developed by Mahsa Dadar and Yashar Zeighami. 
+The general command to run the pipeline should be formatted as:  
 ./PELICAN.sh single_participant_input_file.csv model_folder/ output_folder_all_participants/ {optional indirect_template_folder}
 
 Model path to be used as model_folder:  
 * will be uploaded to zenodo in future
 
 example 1:  
-./PELICAN.sh Participant_Inputs_File.csv /data/dadmah/tools/cicLngPipelineModels/ Outputs/ 
+./PELICAN.sh Participant_Inputs_File.csv Models_Folder/ Outputs/ 
 
 example 2:  
-./PELICAN.sh Participant_Inputs_File.csv /data/dadmah/tools/cicLngPipelineModels/ Outputs/ Indirect_Template/
+./PELICAN.sh Participant_Inputs_File.csv Models_Folder/ Outputs/ Indirect_Template/
 
 
 Participant_Inputs_File.csv format:  
