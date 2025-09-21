@@ -28,9 +28,9 @@ Subject_1,Visit_3, Data/Subject_1_Visit_3_T1w.mnc,Data/Subject_1_Visit_3_T2w.mnc
 Subject_1,Visit_5, Data/Subject_1_Visit_5_T1w.mnc,,,Data/Subject_1_Visit_5_FLAIR.mnc
 
 **Notes**
-* The lines in Participant_Inputs_File.csv correspond to different visits from the same participant; <u>**do not include data from different participants in the same csv file**</u>
+* The lines in Participant_Inputs_File.csv correspond to different visits from the same participant; <span style="text-decoration:underline;">**do not include data from different participants in the same csv file**</span>
 * In case of missing modalities, leave the column empty, similar to the examples provided above.
-* Do not mismatch contrasts when some are not available **(i.e. if inputs are Subject_1,Visit_2, Data/Subject_1_Visit_2_T1w.mnc,Data/Subject_1_Visit_1_FLAIR.mnc, it will assume Data/Subject_1_Visit_1_FLAIR.mnc is a path to a T2w image.)**
+* Do not mismatch contrasts when some are not available **(i.e. if inputs are Subject_1,Visit_2, Data/Subject_1_Visit_2_T1w.mnc,Data/Subject_1_Visit_1_FLAIR.mnc, it will assume Data/Subject_1_Visit_1_FLAIR.mnc is a path to a T2w image).**
 * Use of Indirect_Template is <u>**optional**</u> and not necessary in healthy populations or those with subtle atrophy, but it is recommended in Alzheimer's disease and frontotemporal dementia populations.
 * It is possible to use other indirect templates if appropriate files are provided: model averages, corresponding masks, brain contour, and nonlinear transformation to ICBM
 * It is also possible to replace ICBM with other templates by changing the template files (e.g. Av_T1.mnc) in the Models folder.
