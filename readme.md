@@ -2,8 +2,7 @@ This page describes PELICAN pipeline, a longitudinal multi-contrast MRI processi
 The general command to run the pipeline should be formatted as:  
 ./PELICAN.sh single_participant_input_file.csv model_folder/ output_folder_all_participants/ {optional indirect_template_folder}
 
-Model path to be used as model_folder:  
-* will be uploaded to zenodo in future
+Model path to be used as model_folder as well as a singularity build for the necessary tools are available at: https://zenodo.org/records/17168419
 
 **example 1:**  
 ./PELICAN.sh Participant_Inputs_File.csv Models_Folder/ Outputs/ 
