@@ -58,8 +58,7 @@ fi
 # ANTs: Advanced normalization tools (Avants et al. 2009)
 # BISON: Brain tissue segmentation (Dadar et al. 2020)
 
-### Pre-processing the native data ###
-echo "Pre-processing the native data"
+echo "Checking for NIfTI inputs and preparing MINC inputs (in-place)"
 for i in $(cat ${input_list});do
     id=$(echo ${i}|cut -d , -f 1)
     visit=$(echo ${i}|cut -d , -f 2)
@@ -68,6 +67,55 @@ for i in $(cat ${input_list});do
     pd=$(echo ${i}|cut -d , -f 5)
     flr=$(echo ${i}|cut -d , -f 6)
     echo ${id} ${visit}
+    if [[ ${t1} == *.nii ]] || [[ ${t1} == *.nii.gz ]]; then
+        flag_nii=1
+        echo "Converting T1 NIfTI to MINC format"
+        mkdir -p ${output_path}/${id}/${visit}/raw
+        t1_minc=${output_path}/${id}/${visit}/raw/${id}_${visit}_t1.mnc
+        if [ ! -f ${t1_minc} ];then 
+            nii2mnc ${t1} ${t1_minc} -clobber
+            t1=${t1_minc}
+        else
+            t1=${t1_minc}
+        fi
+    fi
+    if [[ ${t2} == *.nii ]] || [[ ${t2} == *.nii.gz ]]; then
+        echo "Converting T2 NIfTI to MINC format"
+        mkdir -p ${output_path}/${id}/${visit}/raw
+        t2_minc=${output_path}/${id}/${visit}/raw/${id}_${visit}_t2.mnc
+        if [ ! -f ${t2_minc} ];then 
+            nii2mnc ${t2} ${t2_minc} -clobber
+            t2=${t2_minc}
+        else
+            t2=${t2_minc}
+        fi
+    fi
+    if [[ ${pd} == *.nii ]] || [[ ${pd} == *.nii.gz ]]; then
+        echo "Converting PD NIfTI to MINC format"
+        mkdir -p ${output_path}/${id}/${visit}/raw
+        pd_minc=${output_path}/${id}/${visit}/raw/${id}_${visit}_pd.mnc
+        if [ ! -f ${pd_minc} ];then 
+            nii2mnc ${pd} ${pd_minc} -clobber
+            pd=${pd_minc}
+        else
+            pd=${pd_minc}
+        fi
+    fi
+    if [[ ${flr} == *.nii ]] || [[ ${flr} == *.nii.gz ]]; then
+        echo "Converting FLAIR NIfTI to MINC format"
+        mkdir -p ${output_path}/${id}/${visit}/raw
+        flr_minc=${output_path}/${id}/${visit}/raw/${id}_${visit}_flr.mnc
+        if [ ! -f ${flr_minc} ];then 
+            nii2mnc ${flr} ${flr_minc} -clobber
+            flr=${flr_minc}
+        else
+            flr=${flr_minc}
+        fi
+    fi
+
+    ### Pre-processing the native data ###
+    echo "Pre-processing the native data"
+
     ### Creating the directories for preprocessed outputs ###
     # native: where the preprocessed images (denoising, non-uniformity correction, intensity normalization) will be saved (before linear registration)
     # stx_lin: where the preprocessed and linearly registered images will be saved
@@ -238,6 +286,11 @@ if [ ! -f ${path_t1_stx} ] && [ ${tp} = 1 ];then
     itk_resample ${output_path}/${id}/${visit}/stx_lin/${id}_${visit}_t1_stx2_lin_vp.mnc ${output_path}/${id}/${visit}/stx_nlin/${id}_${visit}_nlin.mnc \
             --like ${model_path}/Av_T1.mnc --transform ${output_path}/${id}/${visit}/stx_nlin/${id}_${visit}_inv_nlin_0_inverse_NL.xfm --order 4 --clobber --invert_transform
     grid_proc --det ${output_path}/${id}/${visit}/stx_nlin/${id}_${visit}_inv_nlin_0_inverse_NL_grid_0.mnc ${output_path}/${id}/${visit}/vbm/${id}_${visit}_dbm.mnc --clobber
+    if [[ ${flag_nii} -eq 1 && -f ${output_path}/${id}/${visit}/vbm/${id}_${visit}_dbm.mnc ]];then
+        echo "Converting MINC to NIfTI format"
+        mnc2nii -nii ${output_path}/${id}/${visit}/vbm/${id}_${visit}_dbm.mnc ${output_path}/${id}/${visit}/vbm/${id}_${visit}_dbm.nii
+    fi
+    
     
     if [ -f ${secondary_template_path}/Av_T1.mnc ];then
         echo "Nonlinear registration to indirect template"
@@ -535,6 +588,10 @@ if [ ${tp} -gt 1 ];then
             itk_resample ${output_path}/${id}/${visit_tp}/stx_lin/${id}_${visit_tp}_t1_stx2_lin_vp.mnc ${output_path}/${id}/${visit_tp}/stx_nlin/${id}_${visit_tp}_nlin.mnc \
                 --like ${model_path}/Av_T1.mnc --transform ${output_path}/${id}/${visit_tp}/stx_nlin/${id}_${visit_tp}_inv_nlin_0_inverse_NL.xfm --order 4 --clobber --invert_transform
             grid_proc --det ${output_path}/${id}/${visit_tp}/stx_nlin/${id}_${visit_tp}_inv_nlin_0_inverse_NL_grid_0.mnc ${output_path}/${id}/${visit_tp}/vbm/${id}_${visit_tp}_dbm.mnc --clobber
+            if [[ ${flag_nii} -eq 1 && -f ${output_path}/${id}/${visit_tp}/vbm/${id}_${visit_tp}_dbm.mnc ]];then
+                echo "Converting MINC to NIfTI format"
+                mnc2nii -nii ${output_path}/${id}/${visit_tp}/vbm/${id}_${visit_tp}_dbm.mnc ${output_path}/${id}/${visit_tp}/vbm/${id}_${visit_tp}_dbm.nii
+            fi
         fi       
     done
 
@@ -580,6 +637,10 @@ if [ ${tp} -gt 1 ];then
                     itk_resample ${output_path}/${id}/${visit_tp}/stx_lin/${id}_${visit_tp}_t1_stx2_lin_vp.mnc ${output_path}/${id}/${visit_tp}/stx_nlin/${id}_${visit_tp}_secondary_template_3_nlin.mnc \
                         --like ${model_path}/Av_T1.mnc --transform ${output_path}/${id}/${visit_tp}/stx_nlin/${id}_${visit_tp}_secondary_template_3_inv_nlin_0_inverse_NL.xfm --order 4 --clobber --invert_transform
                     grid_proc --det ${output_path}/${id}/${visit_tp}/stx_nlin/${id}_${visit_tp}_secondary_template_3_inv_nlin_0_inverse_NL_grid_0.mnc ${output_path}/${id}/${visit_tp}/vbm/${id}_${visit_tp}_indirect_dbm.mnc --clobber
+                    if [[ ${flag_nii} -eq 1 && -f ${output_path}/${id}/${visit_tp}/vbm/${id}_${visit_tp}_indirect_dbm.mnc ]];then
+                        echo "Converting MINC to NIfTI format"
+                        mnc2nii -nii ${output_path}/${id}/${visit_tp}/vbm/${id}_${visit_tp}_indirect_dbm.mnc ${output_path}/${id}/${visit_tp}/vbm/${id}_${visit_tp}_indirect_dbm.nii
+                    fi
                 fi
             done
         fi
@@ -685,7 +746,21 @@ for timepoint in $(seq 1 ${tp});do
         mincblur -3dfwhm 4 4 4 ${output_path}/${id}/${visit_tp}/vbm/${id}_${visit_tp}_vbm_wm.mnc  ${output_path}/${id}/${visit_tp}/vbm/${id}_${visit_tp}_vbm_wm
         mincblur -3dfwhm 4 4 4 ${output_path}/${id}/${visit_tp}/vbm/${id}_${visit_tp}_vbm_gm.mnc  ${output_path}/${id}/${visit_tp}/vbm/${id}_${visit_tp}_vbm_gm
         mv  ${output_path}/${id}/${visit_tp}/vbm/${id}_${visit_tp}_vbm_wm_blur.mnc ${output_path}/${id}/${visit_tp}/vbm/${id}_${visit_tp}_vbm_wm.mnc 
-        mv  ${output_path}/${id}/${visit_tp}/vbm/${id}_${visit_tp}_vbm_gm_blur.mnc ${output_path}/${id}/${visit_tp}/vbm/${id}_${visit_tp}_vbm_gm.mnc 
+        mv  ${output_path}/${id}/${visit_tp}/vbm/${id}_${visit_tp}_vbm_gm_blur.mnc ${output_path}/${id}/${visit_tp}/vbm/${id}_${visit_tp}_vbm_gm.mnc
+        if [[ ${flag_nii} -eq 1 ]];then
+            echo "Converting MINC to NIfTI format"
+            mnc2nii -nii ${output_path}/${id}/${visit_tp}/cls/RF0_${id}_${visit_tp}_t1_Labelr.mnc ${output_path}/${id}/${visit_tp}/cls/RF0_${id}_${visit_tp}_t1_Labelr.nii
+            mnc2nii -nii ${output_path}/${id}/${visit_tp}/cls/RF0_${id}_${visit_tp}_t1_Prob_GM.mnc ${output_path}/${id}/${visit_tp}/cls/RF0_${id}_${visit_tp}_t1_Prob_GM.nii
+            mnc2nii -nii ${output_path}/${id}/${visit_tp}/cls/RF0_${id}_${visit_tp}_t1_Prob_WM.mnc ${output_path}/${id}/${visit_tp}/cls/RF0_${id}_${visit_tp}_t1_Prob_WM.nii
+            if [ -f ${output_path}/${id}/${visit_tp}/RF0_${id}_${visit_tp}_t1_flr_Labelr.mnc ];then 
+                            mnc2nii -nii ${output_path}/${id}/${visit_tp}/RF0_${id}_${visit_tp}_t1_flr_Labelr.mnc ${output_path}/${id}/${visit_tp}/RF0_${id}_${visit_tp}_t1_flr_Labelr.nii
+            fi
+            if [ -f ${output_path}/${id}/${visit_tp}/RF0_${id}_${visit_tp}_t1_t2_Labelr.mnc ];then
+                            mnc2nii -nii ${output_path}/${id}/${visit_tp}/RF0_${id}_${visit_tp}_t1_t2_Labelr.mnc ${output_path}/${id}/${visit_tp}/RF0_${id}_${visit_tp}_t1_t2_Labelr.nii
+            fi
+            mnc2nii -nii ${output_path}/${id}/${visit}/vbm/${id}_${visit}_vbm_gm.mnc ${output_path}/${id}/${visit}/vbm/${id}_${visit}_vbm_gm.nii
+            mnc2nii -nii ${output_path}/${id}/${visit}/vbm/${id}_${visit}_vbm_wm.mnc ${output_path}/${id}/${visit}/vbm/${id}_${visit}_vbm_wm.nii 
+        fi 
     fi
 done
 
@@ -756,3 +831,9 @@ do
 done
 
 echo "Processing Successfully Finished!"
+
+### generating QC report HTML ###
+echo "Generating QC report HTML"d
+if [ -d "${output_path}/${id}/qc/" ]; then
+    ${model_path}/generate_qc_html.sh "${output_path}/${id}"
+fi
