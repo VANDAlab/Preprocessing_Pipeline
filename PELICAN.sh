@@ -67,6 +67,7 @@ for i in $(cat ${input_list});do
     pd=$(echo ${i}|cut -d , -f 5)
     flr=$(echo ${i}|cut -d , -f 6)
     echo ${id} ${visit}
+    flag_nii=0
     if [[ ${t1} == *.nii ]] || [[ ${t1} == *.nii.gz ]]; then
         flag_nii=1
         echo "Converting T1 NIfTI to MINC format"
@@ -317,7 +318,9 @@ if [ ! -f ${path_t1_stx} ] && [ ${tp} = 1 ];then
         --like ${secondary_template_path}/Av_T1.mnc --exact --clobber
         itk_resample ${output_path}/${id}/${visit}/stx_lin/${id}_${visit}_t1_stx2_lin_vp.mnc ${output_path}/${id}/${visit}/stx_nlin/${id}_${visit}_secondary_template_3_nlin.mnc \
             --like ${model_path}/Av_T1.mnc --transform ${output_path}/${id}/${visit}/stx_nlin/${id}_${visit}_secondary_template_3_inv_nlin_0_inverse_NL.xfm --order 4 --clobber --invert_transform
-        grid_proc --det ${output_path}/${id}/${visit}/stx_nlin/${id}_${visit}_secondary_template_3_inv_nlin_0_inverse_NL_grid_0.mnc ${output_path}/${id}/${visit}/vbm/${id}_${visit}_indirect_dbm.mnc --clobber
+        grid_proc --det ${output_path}/${id}/${visit}/stx_nlin/${id}_${visit}_secondary_template_3_inv_nlin_0_inverse_NL_grid_0.mnc ${output_path}/${id}/${visit}/vbm/${id}_${visit}_indirect_dbm_tmp.mnc --clobber
+        mincresample ${output_path}/${id}/${visit}/vbm/${id}_${visit}_indirect_dbm_tmp.mnc -like ${model_path}/Av_T1.mnc ${output_path}/${id}/${visit}/vbm/${id}_${visit}_indirect_dbm.mnc
+        rm  ${output_path}/${id}/${visit}/vbm/${id}_${visit}_indirect_dbm_tmp.mnc
     fi
 fi
 
@@ -636,7 +639,9 @@ if [ ${tp} -gt 1 ];then
                     --like ${secondary_template_path}/Av_T1.mnc --exact --clobber
                     itk_resample ${output_path}/${id}/${visit_tp}/stx_lin/${id}_${visit_tp}_t1_stx2_lin_vp.mnc ${output_path}/${id}/${visit_tp}/stx_nlin/${id}_${visit_tp}_secondary_template_3_nlin.mnc \
                         --like ${model_path}/Av_T1.mnc --transform ${output_path}/${id}/${visit_tp}/stx_nlin/${id}_${visit_tp}_secondary_template_3_inv_nlin_0_inverse_NL.xfm --order 4 --clobber --invert_transform
-                    grid_proc --det ${output_path}/${id}/${visit_tp}/stx_nlin/${id}_${visit_tp}_secondary_template_3_inv_nlin_0_inverse_NL_grid_0.mnc ${output_path}/${id}/${visit_tp}/vbm/${id}_${visit_tp}_indirect_dbm.mnc --clobber
+                    grid_proc --det ${output_path}/${id}/${visit_tp}/stx_nlin/${id}_${visit_tp}_secondary_template_3_inv_nlin_0_inverse_NL_grid_0.mnc ${output_path}/${id}/${visit_tp}/vbm/${id}_${visit_tp}_indirect_dbm_tmp.mnc --clobber
+                    mincresample ${output_path}/${id}/${visit_tp}/vbm/${id}_${visit_tp}_indirect_dbm_tmp.mnc -like ${model_path}/Av_T1.mnc ${output_path}/${id}/${visit_tp}/vbm/${id}_${visit_tp}_indirect_dbm.mnc
+                    rm  ${output_path}/${id}/${visit_tp}/vbm/${id}_${visit_tp}_indirect_dbm_tmp.mnc
                     if [[ ${flag_nii} -eq 1 && -f ${output_path}/${id}/${visit_tp}/vbm/${id}_${visit_tp}_indirect_dbm.mnc ]];then
                         echo "Converting MINC to NIfTI format"
                         mnc2nii -nii ${output_path}/${id}/${visit_tp}/vbm/${id}_${visit_tp}_indirect_dbm.mnc ${output_path}/${id}/${visit_tp}/vbm/${id}_${visit_tp}_indirect_dbm.nii
@@ -743,23 +748,46 @@ for timepoint in $(seq 1 ${tp});do
         ${output_path}/${id}/${visit_tp}/vbm/${id}_${visit_tp}_vbm_gm.mnc -clobber
         minccalc -expression 'A[0]*A[1]' ${output_path}/${id}/tmp/${id}_${visit_tp}_nl_prob_wmt.mnc ${output_path}/${id}/${visit_tp}/vbm/${id}_${visit_tp}_dbm.mnc \
         ${output_path}/${id}/${visit_tp}/vbm/${id}_${visit_tp}_vbm_wm.mnc -clobber
-        mincblur -3dfwhm 4 4 4 ${output_path}/${id}/${visit_tp}/vbm/${id}_${visit_tp}_vbm_wm.mnc  ${output_path}/${id}/${visit_tp}/vbm/${id}_${visit_tp}_vbm_wm
-        mincblur -3dfwhm 4 4 4 ${output_path}/${id}/${visit_tp}/vbm/${id}_${visit_tp}_vbm_gm.mnc  ${output_path}/${id}/${visit_tp}/vbm/${id}_${visit_tp}_vbm_gm
+        ### No Blur and 2mm Blur VBM added, Beta version, Use the 4mm blur _vbm_wm.mnc _vbm_gm.mnc as default ###
+        cp ${output_path}/${id}/${visit_tp}/vbm/${id}_${visit_tp}_vbm_wm.mnc ${output_path}/${id}/${visit_tp}/vbm/${id}_${visit_tp}_vbm_wm_no_blur.mnc
+        cp ${output_path}/${id}/${visit_tp}/vbm/${id}_${visit_tp}_vbm_gm.mnc ${output_path}/${id}/${visit_tp}/vbm/${id}_${visit_tp}_vbm_gm_no_blur.mnc
+        mincblur -3dfwhm 4 4 4 ${output_path}/${id}/${visit_tp}/vbm/${id}_${visit_tp}_vbm_wm_no_blur.mnc  ${output_path}/${id}/${visit_tp}/vbm/${id}_${visit_tp}_vbm_wm
+        mincblur -3dfwhm 4 4 4 ${output_path}/${id}/${visit_tp}/vbm/${id}_${visit_tp}_vbm_gm_no_blur.mnc  ${output_path}/${id}/${visit_tp}/vbm/${id}_${visit_tp}_vbm_gm
         mv  ${output_path}/${id}/${visit_tp}/vbm/${id}_${visit_tp}_vbm_wm_blur.mnc ${output_path}/${id}/${visit_tp}/vbm/${id}_${visit_tp}_vbm_wm.mnc 
         mv  ${output_path}/${id}/${visit_tp}/vbm/${id}_${visit_tp}_vbm_gm_blur.mnc ${output_path}/${id}/${visit_tp}/vbm/${id}_${visit_tp}_vbm_gm.mnc
+        mincblur -3dfwhm 2 2 2 ${output_path}/${id}/${visit_tp}/vbm/${id}_${visit_tp}_vbm_wm_no_blur.mnc  ${output_path}/${id}/${visit_tp}/vbm/${id}_${visit_tp}_vbm_wm
+        mincblur -3dfwhm 2 2 2 ${output_path}/${id}/${visit_tp}/vbm/${id}_${visit_tp}_vbm_gm_no_blur.mnc  ${output_path}/${id}/${visit_tp}/vbm/${id}_${visit_tp}_vbm_gm
+        mv  ${output_path}/${id}/${visit_tp}/vbm/${id}_${visit_tp}_vbm_wm_blur.mnc ${output_path}/${id}/${visit_tp}/vbm/${id}_${visit_tp}_vbm_wm_2mm_blur.mnc 
+        mv  ${output_path}/${id}/${visit_tp}/vbm/${id}_${visit_tp}_vbm_gm_blur.mnc ${output_path}/${id}/${visit_tp}/vbm/${id}_${visit_tp}_vbm_gm_2mm_blur.mnc
+        ### indirect VBM option added, Beta version
+        if [ -f ${secondary_template_path}/Av_T1.mnc ];then
+            itk_resample ${output_path}/${id}/${visit_tp}/cls/RF0_${id}_${visit_tp}_t1_Prob_GM.mnc ${output_path}/${id}/tmp/${id}_${visit_tp}_nl_prob_gm_indir.mnc \
+            --like ${model_path}/Av_T1.mnc --transform ${output_path}/${id}/${visit_tp}/stx_nlin/${id}_${visit_tp}_secondary_template_3_inv_nlin_0_inverse_NL.xfm --order 4 --clobber --invert_transform
+             itk_resample ${output_path}/${id}/${visit_tp}/cls/RF0_${id}_${visit_tp}_t1_Prob_WM.mnc ${output_path}/${id}/tmp/${id}_${visit_tp}_nl_prob_wm_indir.mnc \
+            --like ${model_path}/Av_T1.mnc --transform ${output_path}/${id}/${visit_tp}/stx_nlin/${id}_${visit_tp}_secondary_template_3_inv_nlin_0_inverse_NL.xfm --order 4 --clobber --invert_transform           
+            minccalc -expression 'A[0]*A[1]' ${output_path}/${id}/tmp/${id}_${visit_tp}_nl_prob_gm_indir.mnc ${output_path}/${id}/${visit_tp}/vbm/${id}_${visit_tp}_indirect_dbm.mnc \
+            ${output_path}/${id}/${visit_tp}/vbm/${id}_${visit_tp}_indirect_vbm_gm.mnc -clobber
+            minccalc -expression 'A[0]*A[1]' ${output_path}/${id}/tmp/${id}_${visit_tp}_nl_prob_wm_indir.mnc ${output_path}/${id}/${visit_tp}/vbm/${id}_${visit_tp}_indirect_dbm.mnc \
+            ${output_path}/${id}/${visit_tp}/vbm/${id}_${visit_tp}_indirect_vbm_wm.mnc -clobber
+            mincblur -3dfwhm 4 4 4 ${output_path}/${id}/${visit_tp}/vbm/${id}_${visit_tp}_indirect_vbm_wm.mnc  ${output_path}/${id}/${visit_tp}/vbm/${id}_${visit_tp}_indirect_vbm_wm
+            mincblur -3dfwhm 4 4 4 ${output_path}/${id}/${visit_tp}/vbm/${id}_${visit_tp}_indirect_vbm_gm.mnc  ${output_path}/${id}/${visit_tp}/vbm/${id}_${visit_tp}_indirect_vbm_gm
+            mv  ${output_path}/${id}/${visit_tp}/vbm/${id}_${visit_tp}_indirect_vbm_wm_blur.mnc ${output_path}/${id}/${visit_tp}/vbm/${id}_${visit_tp}_indirect_vbm_wm.mnc 
+            mv  ${output_path}/${id}/${visit_tp}/vbm/${id}_${visit_tp}_indirect_vbm_gm_blur.mnc ${output_path}/${id}/${visit_tp}/vbm/${id}_${visit_tp}_indirect_vbm_gm.mnc
+        fi
+        ### Conversion to nii option added, Beta version
         if [[ ${flag_nii} -eq 1 ]];then
             echo "Converting MINC to NIfTI format"
             mnc2nii -nii ${output_path}/${id}/${visit_tp}/cls/RF0_${id}_${visit_tp}_t1_Labelr.mnc ${output_path}/${id}/${visit_tp}/cls/RF0_${id}_${visit_tp}_t1_Labelr.nii
             mnc2nii -nii ${output_path}/${id}/${visit_tp}/cls/RF0_${id}_${visit_tp}_t1_Prob_GM.mnc ${output_path}/${id}/${visit_tp}/cls/RF0_${id}_${visit_tp}_t1_Prob_GM.nii
             mnc2nii -nii ${output_path}/${id}/${visit_tp}/cls/RF0_${id}_${visit_tp}_t1_Prob_WM.mnc ${output_path}/${id}/${visit_tp}/cls/RF0_${id}_${visit_tp}_t1_Prob_WM.nii
+            mnc2nii -nii ${output_path}/${id}/${visit_tp}/vbm/${id}_${visit_tp}_vbm_gm.mnc ${output_path}/${id}/${visit_tp}/vbm/${id}_${visit_tp}_vbm_gm.nii
+            mnc2nii -nii ${output_path}/${id}/${visit_tp}/vbm/${id}_${visit_tp}_vbm_wm.mnc ${output_path}/${id}/${visit_tp}/vbm/${id}_${visit_tp}_vbm_wm.nii 
             if [ -f ${output_path}/${id}/${visit_tp}/RF0_${id}_${visit_tp}_t1_flr_Labelr.mnc ];then 
                             mnc2nii -nii ${output_path}/${id}/${visit_tp}/RF0_${id}_${visit_tp}_t1_flr_Labelr.mnc ${output_path}/${id}/${visit_tp}/RF0_${id}_${visit_tp}_t1_flr_Labelr.nii
             fi
             if [ -f ${output_path}/${id}/${visit_tp}/RF0_${id}_${visit_tp}_t1_t2_Labelr.mnc ];then
                             mnc2nii -nii ${output_path}/${id}/${visit_tp}/RF0_${id}_${visit_tp}_t1_t2_Labelr.mnc ${output_path}/${id}/${visit_tp}/RF0_${id}_${visit_tp}_t1_t2_Labelr.nii
             fi
-            mnc2nii -nii ${output_path}/${id}/${visit}/vbm/${id}_${visit}_vbm_gm.mnc ${output_path}/${id}/${visit}/vbm/${id}_${visit}_vbm_gm.nii
-            mnc2nii -nii ${output_path}/${id}/${visit}/vbm/${id}_${visit}_vbm_wm.mnc ${output_path}/${id}/${visit}/vbm/${id}_${visit}_vbm_wm.nii 
         fi 
     fi
 done
