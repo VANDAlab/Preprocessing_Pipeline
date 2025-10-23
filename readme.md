@@ -2,7 +2,7 @@ This page describes PELICAN pipeline, a longitudinal multi-contrast MRI processi
 The general command to run the pipeline should be formatted as:  
 ./PELICAN.sh single_participant_input_file.csv model_folder/ output_folder_all_participants/ {optional indirect_template_folder}
 
-Model path to be used as model_folder as well as a singularity build for the necessary tools (ANTs, MINC, and Anaconda) are available at: https://zenodo.org/records/17168419. 
+Model path <ins>**necessary**</ins> to be used as model_folder as well as a singularity build for the necessary tools (ANTs, MINC, and Anaconda) are available at: https://zenodo.org/records/17168419. 
 For more details, please refer to: https://www.biorxiv.org/content/10.1101/2025.09.20.677546v1.abstract
 
 **example 1:**  
@@ -34,4 +34,15 @@ Subject_1,Visit_5, Data/Subject_1_Visit_5_T1w.mnc,,,Data/Subject_1_Visit_5_FLAIR
 * Use of Indirect_Template is <u>**optional**</u> and not necessary in healthy populations or those with subtle atrophy, but it is recommended in Alzheimer's disease and frontotemporal dementia populations.
 * It is possible to use other indirect templates if appropriate files are provided: model averages, corresponding masks, brain contour, and nonlinear transformation to ICBM
 * It is also possible to replace ICBM with other templates by changing the template files (e.g. Av_T1.mnc) in the Models folder.
+* BISON labels include:
+    1. Ventricles
+    2. CSF
+    3. cerebellar GM
+    4. cerebellar WM
+    5. brainstem
+    6. deep GM
+    7. cortical GM
+    8. WM
+    9. WMHs
+
 
