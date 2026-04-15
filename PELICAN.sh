@@ -782,10 +782,10 @@ for timepoint in $(seq 1 ${tp});do
             mnc2nii -nii ${output_path}/${id}/${visit_tp}/cls/RF0_${id}_${visit_tp}_t1_Prob_WM.mnc ${output_path}/${id}/${visit_tp}/cls/RF0_${id}_${visit_tp}_t1_Prob_WM.nii
             mnc2nii -nii ${output_path}/${id}/${visit_tp}/vbm/${id}_${visit_tp}_vbm_gm.mnc ${output_path}/${id}/${visit_tp}/vbm/${id}_${visit_tp}_vbm_gm.nii
             mnc2nii -nii ${output_path}/${id}/${visit_tp}/vbm/${id}_${visit_tp}_vbm_wm.mnc ${output_path}/${id}/${visit_tp}/vbm/${id}_${visit_tp}_vbm_wm.nii 
-            if [ -f ${output_path}/${id}/${visit_tp}/RF0_${id}_${visit_tp}_t1_flr_Labelr.mnc ];then 
+            if [ -f ${output_path}/${id}/${visit_tp}/cls/RF0_${id}_${visit_tp}_t1_flr_Labelr.mnc ];then 
                             mnc2nii -nii ${output_path}/${id}/${visit_tp}/cls/RF0_${id}_${visit_tp}_t1_flr_Labelr.mnc ${output_path}/${id}/${visit_tp}/cls/RF0_${id}_${visit_tp}_t1_flr_Labelr.nii
             fi
-            if [ -f ${output_path}/${id}/${visit_tp}/RF0_${id}_${visit_tp}_t1_t2_Labelr.mnc ];then
+            if [ -f ${output_path}/${id}/${visit_tp}/cls/RF0_${id}_${visit_tp}_t1_t2_Labelr.mnc ];then
                             mnc2nii -nii ${output_path}/${id}/${visit_tp}/cls/RF0_${id}_${visit_tp}_t1_t2_Labelr.mnc ${output_path}/${id}/${visit_tp}/cls/RF0_${id}_${visit_tp}_t1_t2_Labelr.nii
             fi
         fi 
