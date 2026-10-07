@@ -74,7 +74,7 @@ for i in $(cat ${input_list});do
         mkdir -p ${output_path}/${id}/${visit}/raw
         t1_minc=${output_path}/${id}/${visit}/raw/${id}_${visit}_t1.mnc
         if [ ! -f ${t1_minc} ];then 
-            nii2mnc ${t1} ${t1_minc} -clobber
+            nii2mnc -float  ${t1} ${t1_minc} -clobber
             t1=${t1_minc}
         else
             t1=${t1_minc}
@@ -85,7 +85,7 @@ for i in $(cat ${input_list});do
         mkdir -p ${output_path}/${id}/${visit}/raw
         t2_minc=${output_path}/${id}/${visit}/raw/${id}_${visit}_t2.mnc
         if [ ! -f ${t2_minc} ];then 
-            nii2mnc ${t2} ${t2_minc} -clobber
+            nii2mnc -float  ${t2} ${t2_minc} -clobber
             t2=${t2_minc}
         else
             t2=${t2_minc}
@@ -96,7 +96,7 @@ for i in $(cat ${input_list});do
         mkdir -p ${output_path}/${id}/${visit}/raw
         pd_minc=${output_path}/${id}/${visit}/raw/${id}_${visit}_pd.mnc
         if [ ! -f ${pd_minc} ];then 
-            nii2mnc ${pd} ${pd_minc} -clobber
+            nii2mnc -float ${pd} ${pd_minc} -clobber
             pd=${pd_minc}
         else
             pd=${pd_minc}
@@ -107,7 +107,7 @@ for i in $(cat ${input_list});do
         mkdir -p ${output_path}/${id}/${visit}/raw
         flr_minc=${output_path}/${id}/${visit}/raw/${id}_${visit}_flr.mnc
         if [ ! -f ${flr_minc} ];then 
-            nii2mnc ${flr} ${flr_minc} -clobber
+            nii2mnc -float  ${flr} ${flr_minc} -clobber
             flr=${flr_minc}
         else
             flr=${flr_minc}
